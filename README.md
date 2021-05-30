@@ -18,10 +18,12 @@ A collection of research-oriented tools for working with Bazel.
 ## Setup
 Add the following to your `WORKSPACE` file:
 ```python
-http_archive(
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+git_repository(
     name = "labtools",
-    strip_prefix = "labtools-main",
-    url = "https://github.com/corypaik/labtools/archive/main.zip",
+    branch = "main",
+    remote = "https://github.com/corypaik/labtools",
 )
 load("@labtools//repositories:repositories.bzl", labtools_repos = "repositories")
 
@@ -31,6 +33,10 @@ load("@labtools//repositories:deps.bzl", labtools_deps = "deps")
 
 labtools_deps()
 ```
+
+We recommend following Bazel's output instructions to pin the repo by using `commit` and `shallow_since`. See the Bazel documentation [here](https://docs.bazel.build/versions/master/repo/git.html#git_repository) for more details.
+
+<!-- TODO(corypaik): implement versioning -->
 
 ## Features
 
