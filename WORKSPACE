@@ -33,6 +33,7 @@ load("@com_github_ali5h_rules_pip//:defs.bzl", "pip_import")
 
 pip_import(
     name = "pip",
+    python_interpreter = "python3",
     requirements = "//tools:test-requirements.txt",
 )
 

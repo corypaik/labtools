@@ -24,8 +24,22 @@ def pytype_binary(name, pytype_deps = [], **kwargs):
        pytype_deps: a list of pytype-only deps
        **kwargs: Keyword arguments passed to pytype_genrunle
     """
-    py_binary(name = name, **kwargs)
-    pytype_genrunle(name = name, pytype_deps = pytype_deps, **kwargs)
+
+    python_version = kwargs.pop("python_version", "PY3")
+    srcs_version = kwargs.pop("srcs_version", "PY3")
+
+    py_binary(
+        name = name,
+        python_version = python_version,
+        srcs_version = srcs_version,
+        **kwargs
+    )
+    pytype_genrunle(
+        name = name,
+        pytype_deps = pytype_deps,
+        srcs_version = srcs_version,
+        **kwargs
+    )
 
 def pytype_library(name, pytype_deps = [], **kwargs):
     """Proxy for py_library that implicitly creates a PyType test. 
@@ -35,8 +49,15 @@ def pytype_library(name, pytype_deps = [], **kwargs):
        pytype_deps: a list of pytype-only deps
        **kwargs: Keyword arguments passed to pytype_genrunle
     """
-    py_library(name = name, **kwargs)
-    pytype_genrunle(name = name, pytype_deps = pytype_deps, **kwargs)
+    srcs_version = kwargs.pop("srcs_version", "PY3")
+
+    py_library(name = name, srcs_version = srcs_version, **kwargs)
+    pytype_genrunle(
+        name = name,
+        pytype_deps = pytype_deps,
+        srcs_version = srcs_version,
+        **kwargs
+    )
 
 def pytype_test(name, main = None, **kwargs):
     """Proxy for py_test that implicitly creates a PyType test.
@@ -51,11 +72,14 @@ def pytype_test(name, main = None, **kwargs):
     if main == None:
         main = name + ".py"
 
+    python_version = kwargs.pop("python_version", "PY3")
+    srcs_version = kwargs.pop("srcs_version", "PY3")
+
     py_test(
         name = name,
         main = main,
-        python_version = "PY3",
-        imports = ["../.."],
+        python_version = python_version,
+        srcs_version = srcs_version,
         **kwargs
     )
 
@@ -93,6 +117,7 @@ def pytype_genrunle(
         name = "%s__pytype" % name,
         srcs = srcs,
         main = "pytype_helper.py",
+        python_version = "PY3",
         deps = deps,
         args = args,
         tags = tags,
