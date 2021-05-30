@@ -31,4 +31,5 @@ filegroup(
         "@labtools__yarn//vega-cli",
         "@labtools__yarn//vega-lite",
     ],
+    visibility = ["//visibility:public"],
 )
