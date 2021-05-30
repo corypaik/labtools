@@ -19,9 +19,9 @@ def repositories():
     """ Download dependecies"""
     existing = native.existing_rules().keys()
 
-    ##############################################################################
+    ############################################################################
     # Python
-    ##############################################################################
+    ############################################################################
     if "rules_python" not in existing:
         http_archive(
             name = "rules_python",
@@ -37,9 +37,9 @@ def repositories():
             urls = ["https://github.com/ali5h/rules_pip/archive/3.0.0.tar.gz"],
         )
 
-    ##############################################################################
+    ############################################################################
     # Angular
-    ##############################################################################
+    ############################################################################
     # Source:
     #   https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/angular
     if "bazel_skylib" not in existing:
@@ -125,16 +125,18 @@ def repositories():
     if "com_google_protobuf" not in existing:
         http_archive(
             name = "com_google_protobuf",
-            sha256 = "a569f9f71b64a0c38bcd6ac84c9aee15167fbed2932641728a91a9f267f245d4",
-            strip_prefix = "protobuf-master",
-            urls = ["https://github.com/protocolbuffers/protobuf/archive/master.zip"],
+            sha256 = "9b4ee22c250fe31b16f1a24d61467e40780a3fbb9b91c3b65be2a376ed913a1a",
+            strip_prefix = "protobuf-3.13.0",
+            urls = [
+                "https://github.com/protocolbuffers/protobuf/archive/v3.13.0.tar.gz",
+            ],
         )
     if "com_github_bazelbuild_buildtools" not in existing:
         http_archive(
             name = "com_github_bazelbuild_buildtools",
-            sha256 = "9eb7f90f82dfddb86a714584c61cc01ff3f34a6d9dd1ef543fda01c750d5c8c5",
-            strip_prefix = "buildtools-master",
-            url = "https://github.com/bazelbuild/buildtools/archive/master.zip",
+            strip_prefix = "buildtools-4.0.1",
+            sha256 = "932160d5694e688cb7a05ac38efba4b9a90470c75f39716d85fb1d2f95eec96d",
+            url = "https://github.com/bazelbuild/buildtools/archive/4.0.1.zip",
         )
 
     # linting
