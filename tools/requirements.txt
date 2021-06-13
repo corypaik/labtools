@@ -8,6 +8,10 @@ absl-py==0.10.0
     # via -r ./tools/requirements.in
 anyio==3.1.0
     # via jupyter-server
+appnope==0.1.2
+    # via
+    #   ipykernel
+    #   ipython
 argon2-cffi==20.1.0
     # via
     #   jupyter-server
@@ -65,10 +69,14 @@ ipython==7.22.0
     #   jupyterlab
 ipywidgets==7.6.3
     # via -r ./tools/requirements.in
+j2cli==0.3.10
+    # via -r ./tools/requirements.in
 jedi==0.18.0
     # via ipython
 jinja2==2.11.3
     # via
+    #   -r ./tools/requirements.in
+    #   j2cli
     #   jupyter-server
     #   jupyterlab
     #   jupyterlab-server
