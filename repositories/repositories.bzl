@@ -25,8 +25,8 @@ def repositories():
     if "rules_python" not in existing:
         http_archive(
             name = "rules_python",
-            sha256 = "b6d46438523a3ec0f3cead544190ee13223a52f6a6765a29eae7b7cc24cc83a0",
-            url = "https://github.com/bazelbuild/rules_python/releases/download/0.1.0/rules_python-0.1.0.tar.gz",
+            url = "https://github.com/bazelbuild/rules_python/releases/download/0.2.0/rules_python-0.2.0.tar.gz",
+            sha256 = "778197e26c5fbeb07ac2a2c5ae405b30f6cb7ad1f5510ea6fdac03bded96cc6f",
         )
 
     if "com_github_ali5h_rules_pip" not in existing:
@@ -97,9 +97,20 @@ def repositories():
     if "io_bazel_rules_docker" not in existing:
         http_archive(
             name = "io_bazel_rules_docker",
-            sha256 = "95d39fd84ff4474babaf190450ee034d958202043e366b9fc38f438c9e6c3334",
-            strip_prefix = "rules_docker-0.16.0",
-            urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.16.0/rules_docker-v0.16.0.tar.gz"],
+            sha256 = "59d5b42ac315e7eadffa944e86e90c2990110a1c8075f1cd145f487e999d22b3",
+            strip_prefix = "rules_docker-0.17.0",
+            urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.17.0/rules_docker-v0.17.0.tar.gz"],
+        )
+
+    #########
+    # K8s
+    #########
+    if "io_bazel_rules_k8s" not in existing:
+        http_archive(
+            name = "io_bazel_rules_k8s",
+            strip_prefix = "rules_k8s-0.5",
+            urls = ["https://github.com/bazelbuild/rules_k8s/archive/v0.5.tar.gz"],
+            sha256 = "773aa45f2421a66c8aa651b8cecb8ea51db91799a405bd7b913d77052ac7261a",
         )
 
     # buildifier
