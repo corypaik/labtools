@@ -42,7 +42,7 @@ def pytype_binary(name, pytype_deps = [], **kwargs):
     )
 
 def pytype_library(name, pytype_deps = [], **kwargs):
-    """Proxy for py_library that implicitly creates a PyType test. 
+    """Proxy for py_library that implicitly creates a PyType test.
 
     Args:
        name: name for the py_binary rule.

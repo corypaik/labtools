@@ -17,7 +17,7 @@
 load("@rules_python//python:defs.bzl", "py_binary")
 
 def jupyterlab_server(name = "jupyterlab", **kwargs):
-    """ A macro for creating a Jupyterlab Server. 
+    """ A macro for creating a Jupyterlab Server.
 
     Args:
       name: A unique name for this rule.

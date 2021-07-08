@@ -159,7 +159,7 @@ jinja = rule(
         "%{format}": "%{name}.%{format}",
     },
     doc = """
-Given an input template and data, run jinja2 to produce an filled output file 
-with the specified extension. 
+Given an input template and data, run jinja2 to produce an filled output file
+with the specified extension.
 """,
 )

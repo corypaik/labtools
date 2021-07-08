@@ -12,7 +12,7 @@ test:debug --test_output=streamed --test_strategy=exclusive --test_timeout=9999 
 # Flag to enable remote config
 common --experimental_repo_remote_exec
 
-# Python rules 
+# Python rules
 build --incompatible_default_to_explicit_init_py
 run --incompatible_default_to_explicit_init_py
 test --incompatible_default_to_explicit_init_py
@@ -25,6 +25,3 @@ test --incompatible_use_python_toolchains
 # lint aspect on build
 build --aspects //tools/linting:aspect.bzl%lint
 build --output_groups=+report
-
-
-

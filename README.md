@@ -8,10 +8,10 @@
 </div>
 
 ## Description
-A collection of research-oriented tools for working with Bazel. 
+A collection of research-oriented tools for working with Bazel.
 
 ### Main Features
-- [Drop in PyType integration](#pytype-integration). 
+- [Drop in PyType integration](#pytype-integration).
 - [Support for running JupyterLab](#jupyterlab).
 - [Python tooling and utilites](#python-tooling).
 
@@ -64,7 +64,7 @@ You can find more information about PyType [here](https://github.com/google/pyty
 ### JupyterLab
 The macro `jupyterlab_sever` can be used to launch a JupyterLab server using pip dependencies from Bazel.
 
-```python 
+```python
 # in BUILD file
 load("@labtools//jupyter:defs.bzl", "jupyterlab_server")
 
@@ -80,7 +80,6 @@ jupyterlab_server(
 You can find more information about JupyterLab [here](https://github.com/jupyterlab/jupyterlab)
 
 ### Python Tooling
-The library `@labtools//labtools` provides various utilities for use cases such as experiment managers with error handling and cache cleanup, profiling, working with tfrecords, converting arbitrary array-type objects to lists, etc. 
+The library `@labtools//labtools` provides various utilities for use cases such as experiment managers with error handling and cache cleanup, profiling, working with tfrecords, converting arbitrary array-type objects to lists, etc.
 
 This library relies only on `toolz` and `absl` at an import-level, and other third-party packages for specific functionalities. Some of these are givens, e.g. you won't need to clean up PyTorch's CUDA cache PyTorch is installed. Other functions, such as loading YML files, do require specific packages. See the error messages or `@require('<pkg>')` decorators for details on what package is required.
-

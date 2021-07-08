@@ -22,6 +22,7 @@ load(
     container_repositories = "repositories",
 )
 load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
+load("@io_bazel_rules_docker//python3:image.bzl", py3_image_repos = "repositories")
 load("@io_bazel_rules_docker//nodejs:image.bzl", nodejs_image_repos = "repositories")
 load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
 load("@io_bazel_rules_k8s//k8s:k8s_go_deps.bzl", k8s_go_deps = "deps")
@@ -59,6 +60,7 @@ def deps():
     # docker
     container_repositories()
     container_deps()
+    py3_image_repos()
     nodejs_image_repos()
 
     # k8s

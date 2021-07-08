@@ -5,7 +5,7 @@ toolz==0.11.1
 # pytype
 pytype==2021.05.25
 
-# formatting 
+# formatting
 yapf==0.31.0
 
 # jupyter notebooks
@@ -13,6 +13,6 @@ jupyter_contrib_nbextensions==0.5.1
 jupyterlab==3.0.14
 ipywidgets>=7.6
 
-# Templates 
+# Templates
 Jinja2
 j2cli
