@@ -145,7 +145,7 @@ def setup_plotting_themes():
     alt.themes.enable('labtools')
 
   # plotly theme
-  if pio := maybe_import('plotly.io'):
+  if plotly := maybe_import('plotly'):
     template = __plotly_theme()
-    pio.templates['labtools'] = template
-    pio.templates.default = 'labtools'
+    plotly.io.templates['labtools'] = template
+    plotly.io.templates.default = 'labtools'
