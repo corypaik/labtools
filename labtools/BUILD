@@ -1,5 +1,6 @@
 load("@labtools//pytype:defs.bzl", "pytype_library")
 load("@labtools__pip//:requirements.bzl", "requirement")
+load("@rules_python//python:packaging.bzl", "py_wheel")
 
 package(default_visibility = ["//visibility:private"])
 
@@ -32,4 +33,13 @@ filegroup(
         "@labtools__yarn//vega-lite",
     ],
     visibility = ["//visibility:public"],
+)
+
+py_wheel(
+    name = "wheel",
+    distribution = "labtools",
+    python_tag = "py3",
+    version = "0.0.1.dev1",
+    visibility = ["//visibility:public"],
+    deps = [":labtools"],
 )
