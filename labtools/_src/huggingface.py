@@ -37,11 +37,11 @@ def hf_one_to_many(fn: Callable) -> Callable:
 
 
 def hf_get_fwd_columns(ds, model, description: str = None):
-  """ Split off meta columns (not for model.forward 
-  
+  """ Split off meta columns (not for model.forward
+
   Args:
     ds (datasets.Dataset): HF Dataset
-    model (transformers.PreTrainedModel): HF Model 
+    model (transformers.PreTrainedModel): HF Model
   """
   # Inspect model forward signature to keep only the arguments it accepts.
   signature = inspect.signature(model.forward)

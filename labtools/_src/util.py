@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-""" A low dependence collection of general utilities. 
-  
-  This file relies on third-party packages for specfic fucnctionalities. Some 
-  of these are givens, e.g. you won't need to convert Torch Tensors -> lists 
-  unless PyTorch is installed. Others, such as loading yml files, do require 
-  specific packages. See the error messages or `@require('<pkg>')` decorators 
+""" A low dependence collection of general utilities.
+
+  This file relies on third-party packages for specfic fucnctionalities. Some
+  of these are givens, e.g. you won't need to convert Torch Tensors -> lists
+  unless PyTorch is installed. Others, such as loading yml files, do require
+  specific packages. See the error messages or `@require('<pkg>')` decorators
   for details on what packeges are required.
 """
 from __future__ import annotations
@@ -46,17 +46,36 @@ FLAGS = flags.FLAGS
 
 @lru_cache(maxsize=None)
 def maybe_import(name: str) -> Union[ModuleType, None]:
+  """ Imports a package if installed
+
+  Args:
+    name: name of the package
+
+  Returns:
+    package `name`, if installled
+    otherwise returns `None`
+
+  """
   return importlib.import_module(name) if is_installed(name) else None
 
 
 @lru_cache(maxsize=None)
 def is_installed(name: str) -> bool:
+  """ Checks if a package is installed.
+  Args:
+    name: name of the package
+  """
   return importlib.util.find_spec(name) is not None
 
 
 def require(*names: list[str]):
-  """Create a decorator to check if a package is installed. """
-  msg = '%s requires %s, but %s not installed.'
+  """Create a decorator to check if a package is installed.
+
+  Args:
+    *names: name of the package(s).
+
+  """
+  msg = '%s requires %s, but it is not installed.'
 
   def wrapped_with_params(fn):
     @wraps(fn)
@@ -78,13 +97,13 @@ def require(*names: list[str]):
 
 @contextmanager
 def catch_exp_failures(name: str, verbose: bool = True):
-  """ Context manager for catching experiment failures. 
+  """ Context manager for catching experiment failures.
 
-    This context manager will ignore all exceptions within context except 
+    This context manager will ignore all exceptions within context except
     Keyboard Interrupts and is useful for running sets of experiments. Failed
-    experiments will be logged to stderr (absl) and skipped. If torch is 
-    installed, we empty the catch on exit of the context manager. We also run 
-    Garbage collection. This should cleanup most GPU allocations, and is known 
+    experiments will be logged to stderr (absl) and skipped. If torch is
+    installed, we empty the catch on exit of the context manager. We also run
+    Garbage collection. This should cleanup most GPU allocations, and is known
     to work with Jax, PyTorch, and DALI.
 
     Examples:
@@ -97,7 +116,7 @@ def catch_exp_failures(name: str, verbose: bool = True):
 
     Args:
       name: Name of the experiment
-      verbose: Predicate indicating whether to log details about timing 
+      verbose: Predicate indicating whether to log details about timing
         information of the experiment on success.
   """
   tick = time.time()
@@ -122,6 +141,18 @@ def catch_exp_failures(name: str, verbose: bool = True):
 
 
 def topylist(x) -> list:
+  """ Convert a list-like object to a python list.
+
+  Converts a list-like object into a python list. This function requires no
+  additional packages to be installed, and checks each input using a string of
+  the type. This can be useful for reliably converting tensors to a format
+  supported by json or other logging libraries.
+
+  Args:
+    x: A list-like object, which can be a torch Tensor, numpy array, or jax
+      array. If `x` is not any of these, the default is to try `x.tolist()`, or
+      just return `x` if that fails.
+  """
   x_type = str(type(x))
   if x_type == '<class \'torch.Tensor\'>':
     x = x.tolist()
@@ -138,7 +169,13 @@ def topylist(x) -> list:
 
 
 def compute_obj_hash(obj) -> str:
-  """ computes the hash of an object."""
+  """ Computes the hash of an object.
+
+  This uses `labtools.BestEffortJsonEncoder` to dump `obj` as a json string and uses
+  SHA256 to hash that string. This function is meant to hash any input by
+  representing it as a string.
+
+  """
   str_obj = json.dumps(obj, cls=BestEffortJSONEncoder, sort_keys=True)
   return hashlib.sha256(str_obj.encode('utf-8')).hexdigest()
 
@@ -146,7 +183,7 @@ def compute_obj_hash(obj) -> str:
 class CustomJSONEncoder(json.JSONEncoder):
   """JSON encoder w/ support for ConfigDicts, Paths, and Arrays.
   Note:
-    This is based off of ml_collections.CustomJSONEncoder, with added support 
+    This is based off of ml_collections.CustomJSONEncoder, with added support
     for Paths and Arrays (it also doesn't requrie ml_collections)
   """
   def default(self, obj):
@@ -218,14 +255,34 @@ def __check_arg_lens(args):
     assert len(arg) == n, 'length mismatch: {}'.format(list(map(len, args)))
 
 
-def safe_zip(*args):
-  __check_arg_lens(args)
-  return list(zip(*args))
+def safe_zip(*iterables):
+  """ Checks for matching lengths before zipping multiple iterables.
+
+  Note:
+    This function is not streaming, if any of `iterables` are generaters, they will be
+    fully evaluated first.
+
+  Args:
+    *iterables: iterables to check and aggregate
+  """
+  __check_arg_lens(iterables)
+  return list(zip(*iterables))
 
 
-def safe_map(f: Callable, *args):
-  __check_arg_lens(args)
-  return list(map(f, *args))
+def safe_map(f: Callable, *iterables):
+  """ Checks for matching lengths before mapping iterables.
+
+  Note:
+    This function is not streaming, if any of `iterables` are generaters, they will be
+    fully evaluated first.
+
+  Args:
+    f: function to apply to each element of the iterables.
+    *iterables: iterables to be mapped
+
+  """
+  __check_arg_lens(iterables)
+  return list(map(f, *iterables))
 
 
 def unzip(obj):
@@ -245,6 +302,14 @@ def flatten_dict(d: dict[str, Any], parent_key: str = '', sep: str = '/',
 
 
 def flatten_dict(d, parent_key='', sep='/', sort=True):
+  """ Flatten a nested dictionary
+
+  Flattens a nested dictionary by joining keys at each depth using `sep`.
+
+  Examples:
+    >>> flatten_dict({'a': {'b': 2}, c: 1})
+        {'a.b': 2, 'c':1}
+  """
   items = []
   for k, v in d.items():
     new_key = parent_key + sep + k if parent_key else k
@@ -265,8 +330,12 @@ def split_by_keys(obj: dict[str, El],
 def get_differences(x, y) -> str:
   """ Get differences of arrays (for debugging)
 
-  Source:
-  https://github.com/numpy/numpy/blob/6ee49178517088966e63c2aedf6a8a5779ad5384/numpy/testing/_private/utils.py#L828
+  Args:
+    x (np.ndarray): array 1 to compare
+    y (np.ndarray): array 2 to compare
+
+  References:
+    [numpy.testing._private.utils](https://github.com/numpy/numpy/blob/6ee49178517088966e63c2aedf6a8a5779ad5384/numpy/testing/_private/utils.py#L828)
   """
   import numpy as np
 

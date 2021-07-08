@@ -22,7 +22,13 @@ from labtools._src.util import maybe_import, require
 @require('altair_saver')
 @lru_cache(maxsize=None)
 def altair_saver():
-  """ Wrapper for altair_saver """
+  """ Wrapper for altair_saver to patch vega paths for saving pdfs
+
+  altair-saver requires vega-cli and vega-lite to be in your path *before*
+  importing altair_saver. This function adds the vega-cli and vega-lite binaries
+  to your path and returns the imported altaier_saver package.
+
+  """
   # patch paths to vega binaries
   runfiles_dir = Path(os.getenv('PWD', os.getcwd())).parent
   node_modules = runfiles_dir / 'labtools__yarn/node_modules'
@@ -139,6 +145,7 @@ def __plotly_theme():
 
 
 def setup_plotting_themes():
+  """ Configure plotting themes for altair and plotly if installed. """
   # altair theme
   if alt := maybe_import('altair'):
     alt.themes.register('labtools', __altair_theme)

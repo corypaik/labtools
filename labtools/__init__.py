@@ -12,9 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-""" LabTools Public API 
+""" LabTools Public API
 
+Python package `labtools` provides various utilities for use cases such as
+experiment managers with error handling and cache cleanup, profiling,
+working with tfrecords, converting arbitrary array-type objects to lists, etc.
+
+<!--
 isort:skip_file
+-->
 """
 
 from labtools._src.util import is_installed

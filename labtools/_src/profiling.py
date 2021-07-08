@@ -15,7 +15,7 @@
 """ Profiler with opttional synchronizion of JAX ant Torch OPS if installed.
 
 Example:
->>> import profiler from labtools 
+>>> import profiler from labtools
 ... profiler.start('train', 'fetch_batch')
 ... for batch in batch_iter:
 ...    profiler.end('fetch_batch')

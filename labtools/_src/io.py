@@ -33,11 +33,11 @@ def load_and_check_yml(path: Union[str, Path], *loadkeys: list[str]):
     Args:
       path: Path to the yml file
       *loadkeys: Keys to load from the config file. These can either be shallow
-        keys or deep addresses seperated as '/'. In the latter case, the file 
-        will be flattened to find the objects recursively.  
-   
+        keys or deep addresses seperated as '/'. In the latter case, the file
+        will be flattened to find the objects recursively.
+
     Returns:
-      A list of Objects cooresponding to each key in loadkeys. Note that keys 
+      A list of Objects cooresponding to each key in loadkeys. Note that keys
       not present will have a value of None
   """
   import yaml
@@ -53,12 +53,12 @@ def load_and_check_yml(path: Union[str, Path], *loadkeys: list[str]):
 
 def dump_jsonl(path: Union[Path, str], data: list[dict[str, Any]],
                relaxed: bool = True) -> None:
-  """ Dump to jsonl. 
+  """ Dump to jsonl.
   Args:
-    path: Path to the jsonl file. 
-    data: object to dump. 
+    path: Path to the jsonl file.
+    data: object to dump.
     relaxed: predicate indicating whether to throw an error when part of the
-      data cannot be encoded using CustomJSONEncoder. 
+      data cannot be encoded using CustomJSONEncoder.
     mkdirs: make parent dirs if they don't exist
   """
   path = Path(path)
@@ -73,17 +73,22 @@ def dump_jsonl(path: Union[Path, str], data: list[dict[str, Any]],
 
 
 def load_jsonl(path: Union[Path, str]) -> list[dict[str, Any]]:
-  """ Load from jsonl. """
+  """ Load from jsonl.
+
+  Args:
+    path: path to the jsonl file
+
+  """
   path = Path(path)
   return [json.loads(line) for line in path.read_text().splitlines()]
 
 
 def dump_json(path: Union[Path, str], data: dict[str, Any],
               relaxed: bool = True, indent=4) -> None:
-  """ Dump to json. 
+  """ Dump to json.
   Args:
-    path: Path to the jsonl file. 
-    data: object to dump. 
+    path: Path to the jsonl file.
+    data: object to dump.
     relaxed: predicate indicating whether to throw an error when part of the
       data cannot be encoded using CustomJSONEncoder.
       indent: json indentation.

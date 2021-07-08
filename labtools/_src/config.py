@@ -26,6 +26,17 @@ FLAGS = flags.FLAGS
 
 
 def setup_jupyter_env():
+  """ Sets up a jupyter notebook environment.
+
+  FOr now this simply sets up basic logging.
+
+  Example:
+    >>> import labtools
+    ... from absl import logging
+    ... labtools.setup_jupyter_env()
+    ... logging.info('I work now!')
+        12:00:00 ── INFO ▷ I work now!
+  """
   import logging as py_logging
   import sys
 
@@ -36,15 +47,15 @@ def setup_jupyter_env():
   logging.setLevel('INFO')
 
 
-def get_results_dir(default_prefix='default') -> str:
+def get_results_dir(default_prefix: str = 'default') -> str:
   """ Get the Bazel Result Path
-    Results stored in _bazel/out/results/<loc> where <loc> is the relative path 
-    in the source tree. 
-    For example if the binary is in `projects/iced/run_clip.py`, then the
-    results_dir would be `_bazel/out/results/projects/iced`
-    This ensures that results are easily accesable between runs and from the 
+    Results stored in _bazel/out/results/<loc> where <loc> is the relative path
+    in the source tree.
+    For example, if the binary is in `projects/my_project/run.py`, then the
+    results_dir would be `_bazel/out/results/projects/my_project`.
+    This ensures that results are easily accesable between runs and from the
     workspace. Note that these files will still be cleaned up by `bazel clean`.
-  
+
   Args:
     default_prefix: tmp dir prefix to use if not ran with Bazel
 
@@ -85,9 +96,9 @@ def configure_logging():
 @require('ml_collections')
 def frozen(fn):
   """ Wrapper to freeze a configuration function.
-    Args: 
-      fn: Callable[[], ConfigDict]
-    
+    Args:
+      fn (Callable[[], ConfigDict]): configuration function
+
     Returns:
       FrozenConfigDict
   """
