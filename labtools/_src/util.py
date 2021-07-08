@@ -54,17 +54,22 @@ def is_installed(name: str) -> bool:
   return importlib.util.find_spec(name) is not None
 
 
-def require(name: str):
+def require(*names: list[str]):
   """Create a decorator to check if a package is installed. """
-  msg = '%s requires %s, but it is not installed.'
+  msg = '%s requires %s, but %s not installed.'
 
   def wrapped_with_params(fn):
     @wraps(fn)
     def _require(*args, **kwargs):
-      if is_installed(name):
+      missing_pkgs = list(T.filter(T.complement(is_installed), names))
+      if missing_pkgs == []:
+        # if is_installed(name):
         return fn(*args, **kwargs)
+      elif len(missing_pkgs) == 1:
+        raise ImportError(msg % (fn.__name__, missing_pkgs[0], 'it is'))
       else:
-        raise ImportError(msg % (fn.__name__, name))
+        nice_names = ', '.join(missing_pkgs)
+        raise ImportError(msg % (fn.__name__, nice_names, 'they are'))
 
     return _require
 
@@ -239,7 +244,7 @@ def flatten_dict(d: dict[str, Any], parent_key: str = '', sep: str = '/',
   ...
 
 
-def flatten_dict(d, parent_key, sep, sort=True):
+def flatten_dict(d, parent_key='', sep='/', sort=True):
   items = []
   for k, v in d.items():
     new_key = parent_key + sep + k if parent_key else k
