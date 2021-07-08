@@ -33,6 +33,7 @@ from labtools._src.util import flatten_dict
 from labtools._src.util import split_by_keys
 from labtools._src.util import get_differences
 
+from labtools._src.io import dump_json
 from labtools._src.io import dump_jsonl
 from labtools._src.io import load_jsonl
 from labtools._src.io import load_and_check_yml
@@ -70,6 +71,7 @@ __all__ = (
   'flatten_dict',
   'split_by_keys',
   'get_differences',
+  'dump_json',
   'dump_jsonl',
   'load_jsonl',
   'load_and_check_yml',

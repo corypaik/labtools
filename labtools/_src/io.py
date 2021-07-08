@@ -64,10 +64,31 @@ def dump_jsonl(path: Union[Path, str], data: list[dict[str, Any]],
   path = Path(path)
   path.parent.mkdir(exist_ok=True, parents=True)
   encoder_cls = BestEffortJSONEncoder if relaxed else CustomJSONEncoder
-  path.write_text('\n'.join([json.dumps(obj, cls=encoder_cls) for obj in data]))
+  # maybe it's a datframe
+  if str(type(data)) == "<class 'pandas.core.frame.DataFrame'>":
+    data.to_json(path, orient='records', lines=True)
+  else:
+    path.write_text('\n'.join([
+      json.dumps(obj, cls=encoder_cls) for obj in data]))
 
 
 def load_jsonl(path: Union[Path, str]) -> list[dict[str, Any]]:
   """ Load from jsonl. """
   path = Path(path)
   return [json.loads(line) for line in path.read_text().splitlines()]
+
+
+def dump_json(path: Union[Path, str], data: dict[str, Any],
+              relaxed: bool = True, indent=4) -> None:
+  """ Dump to json. 
+  Args:
+    path: Path to the jsonl file. 
+    data: object to dump. 
+    relaxed: predicate indicating whether to throw an error when part of the
+      data cannot be encoded using CustomJSONEncoder.
+      indent: json indentation.
+  """
+  path = Path(path)
+  path.parent.mkdir(exist_ok=True, parents=True)
+  encoder_cls = BestEffortJSONEncoder if relaxed else CustomJSONEncoder
+  path.write_text(json.dumps(data, cls=encoder_cls, indent=indent))
