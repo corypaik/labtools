@@ -39,7 +39,7 @@ py_wheel(
     name = "wheel",
     distribution = "labtools",
     python_tag = "py3",
-    version = "0.0.1.dev1",
+    version = "0.0.1.rc0",
     visibility = ["//visibility:public"],
     deps = [":labtools"],
 )
