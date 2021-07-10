@@ -61,12 +61,20 @@ def maybe_import(name: str) -> Union[ModuleType, None]:
 
 @lru_cache(maxsize=None)
 def is_installed(name: str) -> bool:
-  """ Checks if a package is installed.
+  """ Checks if a module is installed.
   Args:
-    name: name of the package
+    name: name of the module. If name is for a submodule (contains a dot) and
+      the parent module is not installed, `importlib.util.find_spec` will raise 
+      a `ModuleNotFoundError`. We catch these errors and return False.
   """
-  return importlib.util.find_spec(name) is not None
-
+  try:
+    return importlib.util.find_spec(name) is not None
+  except ModuleNotFoundError:
+    return False
+  except:
+    logging.info('Unhandled exception for is_installed, returning False')
+    return False
+    
 
 def require(*names: list[str]):
   """Create a decorator to check if a package is installed.
