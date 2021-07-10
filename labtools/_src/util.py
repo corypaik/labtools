@@ -75,7 +75,7 @@ def require(*names: list[str]):
     *names: name of the package(s).
 
   """
-  msg = '%s requires %s, but it is not installed.'
+  msg = '%s requires %s, but %s not installed.'
 
   def wrapped_with_params(fn):
     @wraps(fn)
