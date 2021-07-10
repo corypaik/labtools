@@ -1,5 +1,13 @@
 
 repos:
+  - repo: https://github.com/keith/pre-commit-buildifier
+    rev: 4.0.1.1
+    hooks:
+      - id: buildifier
+        args: &args
+        - --warnings=all
+      - id: buildifier-lint
+        args: *args
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
     hooks:
