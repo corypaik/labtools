@@ -105,7 +105,9 @@ def pytype_genrunle(
     kwargs.pop("main", [])
     deps = kwargs.pop("deps", []) + ["@labtools//pytype:pytype_helper"]
     srcs = kwargs.pop("srcs", []) + ["@labtools//pytype:pytype_helper"]
-    args = kwargs.pop("args", []) + pytype_args
+
+    args = kwargs.pop("args", [])
+    args = pytype_args
 
     # add pytype tag
     tags = kwargs.pop("tags", []) + ["pytype"]
