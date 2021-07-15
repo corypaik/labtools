@@ -71,8 +71,14 @@ def is_installed(name: str) -> bool:
     return importlib.util.find_spec(name) is not None
   except ModuleNotFoundError:
     return False
+  except ValueError as inst:
+    if str(inst).endswith('.__spec__ is None'):
+      logging.info('Missing __spec__ for %s. Marking package as installed.', 
+                   str(inst).split('.', 1)[0])
+      return True
+    raise inst
   except:
-    logging.info('Unhandled exception for is_installed, returning False')
+    logging.exception('Unhandled exception for is_installed, returning False')
     return False
     
 
