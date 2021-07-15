@@ -104,17 +104,49 @@ def get_results_dir(default_prefix: str = 'default') -> str:
   return result_dir
 
 
-def configure_logging():
+def configure_logging(third_party_offset: int = 0, **offsets):
+  """ Configure logging formatters and levels
+
+  Configures logging formatters and levels for absl and third party libraries.
+  Default logging levels for external libraries:
+
+    | --------------- | --------------------------------------------|
+    | `transformers`  | FLAGS.verbosity - third_party_verbosity - 1 |
+    | `datasets`      | FLAGS.verbosity - third_party_verbosity - 2 |
+
+  Example:
+    A verbosity of 0 (info) would result in a verbosity of warning for
+    transformers and error for datasets.
+  Args:
+    third_party_offset: offset to add to all third party verbosity levels. For
+      example, in a dristributied configuration, one could use a value of `0` on
+      the main process and `1` on all other processes.
+    **offset: offsets for third party libraries
+  """
   import logging as py_logging
   import warnings
+
+  from absl.logging.converter import absl_to_standard
 
   warnings.filterwarnings("ignore",
                           message='The given NumPy array is not writeable')
 
-  logging.get_absl_handler().setFormatter(
-    py_logging.Formatter(
-      fmt="%(asctime)s ── %(levelname)s ── %(name)s ▷ %(message)s",
-      datefmt="%m/%d/%Y %H:%M:%S"))
+  logging.get_absl_handler().setFormatter(_logging_formatter())
+
+  # default third party offsets
+  default_offsets = {'transformers': 0, 'datasets': -1}
+  offsets = {**default_offsets, **offsets}
+
+  third_party_verbosity = FLAGS.verbosity - third_party_offset
+
+  for name, offset in offsets.items():
+    logger = py_logging.getLogger(name)
+    # clip verbosity
+    verbosity = max(third_party_verbosity - offset, logging.FATAL)
+    logger.setLevel(absl_to_standard(verbosity))
+    # apply format
+    for handler in logger.handlers:
+      handler.setFormatter(_logging_formatter())
 
   # ic only in debug if installed.
   if is_installed('icecream'):
@@ -123,6 +155,14 @@ def configure_logging():
       ic.disable()
     else:
       ic.configureOutput(includeContext=True)
+
+
+def _logging_formatter():
+  """ Logginging formatter """
+  import logging as py_logging
+  return py_logging.Formatter(
+    fmt="%(asctime)s ── %(levelname)s ── %(name)s ▷ %(message)s",
+    datefmt="%m/%d/%Y %H:%M:%S")
 
 
 @require('ml_collections')
