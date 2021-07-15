@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import re
 from functools import wraps
+from pathlib import Path
+from typing import Union
 
 from absl import flags, logging
 
@@ -25,10 +27,16 @@ from labtools._src.util import is_installed, require
 FLAGS = flags.FLAGS
 
 
-def setup_jupyter_env():
-  """ Sets up a jupyter notebook environment.
+def setup_jupyter_env(ensure_project_root: Union[None, str] = 'WORKSPACE',
+                      max_parents: int = 1):
+  """  Setup a jupyter notebook environemnt.
 
-  FOr now this simply sets up basic logging.
+  Args:
+    ensure_project_root: File name that indicates the desired root. When using
+      bazel this is usually the WORSPACE file. To disable this behavior, use
+      ensure_project_root=None.
+    max_parents: maximum number of parent directories to climb out of. This is a
+      safegaurd against cd failures to find the specified file.
 
   Example:
     >>> import labtools
@@ -36,8 +44,10 @@ def setup_jupyter_env():
     ... labtools.setup_jupyter_env()
     ... logging.info('I work now!')
         12:00:00 ── INFO ▷ I work now!
+
   """
   import logging as py_logging
+  import os
   import sys
 
   py_logging.basicConfig(format="%(asctime)s ── %(levelname)s ▷ %(message)s",
@@ -45,6 +55,28 @@ def setup_jupyter_env():
                          handlers=[py_logging.StreamHandler(sys.stdout)])
   logging = py_logging.getLogger('absl')
   logging.setLevel('INFO')
+
+  # check for a workspace file
+  if ensure_project_root:
+    og_pwd = os.getcwd()
+    try:
+      for pdepth in range(max_parents + 1):
+        if Path(ensure_project_root).is_file():
+          break
+        os.chdir('..')
+      else:
+        logging.warning(
+          'Failed to find %s in CWD at level=%d. PWD=%s, '
+          'Original PWD=%s. Switching back to Original wd.',
+          ensure_project_root, pdepth, os.getcwd(), og_pwd)
+        # switch back as a safegaurd.
+        os.chdir(og_pwd)
+    except:
+      logging.exception(
+        'Failed to find %s in CWD at level=%d. PWD=%s, '
+        'Original PWD=%s. Switching back to Original wd.', ensure_project_root,
+        pdepth, os.getcwd(), og_pwd)
+      os.chdir(og_pwd)
 
 
 def get_results_dir(default_prefix: str = 'default') -> str:
