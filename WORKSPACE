@@ -17,11 +17,11 @@ workspace(
     managed_directories = {"@yarn": ["node_modules"]},
 )
 
-load("//repositories:repositories.bzl", labtools_repositories = "repositories")
+load("//repositories:repositories.bzl", "labtools_repos")
 
-labtools_repositories()
+labtools_repos()
 
-load("//repositories:deps.bzl", labtools_deps = "deps")
+load("//repositories:deps.bzl", "labtools_deps")
 
 labtools_deps()
 
@@ -40,3 +40,19 @@ pip_import(
 load("@pip//:requirements.bzl", "pip_install")
 
 pip_install(["--no-deps"])
+
+##############
+# Kubernetes
+##############
+load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
+
+k8s_defaults(
+    name = "k8s_deploy",
+    cluster = "gke_kln-lab_us-central1-a_kln-lab-k8s",
+    image_chroot = "us-docker.pkg.dev/kln-lab/kln",
+    kind = "deployment",
+)
+
+load("//config/infra/buildkite:deps.bzl", "buildkite_deps")
+
+buildkite_deps()

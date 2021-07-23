@@ -1,0 +1,3 @@
+steps:
+  - command: "bazel build //... --keep_going"
+    label: ":bazel: Build"
