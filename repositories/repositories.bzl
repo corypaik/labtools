@@ -159,3 +159,5 @@ def repositories():
             strip_prefix = "bazel-linting-system-0.4.0",
             url = "https://github.com/thundergolfer/bazel-linting-system/archive/v0.4.0.zip",
         )
+
+labtools_repos = repositories
