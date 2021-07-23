@@ -15,28 +15,29 @@ A collection of research-oriented tools for working with Bazel.
 - [Support for running JupyterLab](#jupyterlab).
 - [Python tooling and utilites](#python-tooling).
 
-## Setup
+## Disclaimer
+This software is a pre-release beta and under active development. APIs and input schemas are subject to change without notice. If you plan to use this software anyway, please ensure that you pin the commit version.
+
+### Setup
 Add the following to your `WORKSPACE` file:
 ```python
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-git_repository(
+labtools_version = "9af3ae9f41533953f07e6ea238b7b44242390fe5"
+http_archive(
     name = "labtools",
-    branch = "main",
-    remote = "https://github.com/corypaik/labtools",
+    strip_prefix = "labtools-%s" % labtools_version,
+    url = "https://github.com/corypaik/labtools/archive/%s.zip" % labtools_version,
 )
-load("@labtools//repositories:repositories.bzl", labtools_repos = "repositories")
+
+load("@labtools//repositories:repositories.bzl", "labtools_repos")
 
 labtools_repos()
 
-load("@labtools//repositories:deps.bzl", labtools_deps = "deps")
+load("@labtools//repositories:deps.bzl",  "labtools_deps")
 
 labtools_deps()
 ```
-
-We recommend following Bazel's output instructions to pin the repo by using `commit` and `shallow_since`. See the Bazel documentation [here](https://docs.bazel.build/versions/master/repo/git.html#git_repository) for more details.
-
-<!-- TODO(corypaik): implement versioning -->
 
 ## Features
 
