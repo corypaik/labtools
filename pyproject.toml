@@ -17,3 +17,5 @@ blank_line_before_nested_class_or_def = false
 
 [tool.isort]
 skip_gitignore = true
+force_single_line = true
+single_line_exclusions = ['typing']
