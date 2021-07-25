@@ -58,7 +58,7 @@ coverage.xml
 terraform.tfstate*
 
 # disallow third_party (except build files)
-/third_party/
+/third_party/**
 !/third_party/BUILD
 !/third_party/*.BUILD
 
@@ -70,6 +70,9 @@ terraform.tfstate*
 /.sass-cache
 /connect.lock
 /typings
+
+# user-specific bazelrc
+.bazelrc.user
 
 # ---------------------
 # Project Specific

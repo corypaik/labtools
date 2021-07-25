@@ -23,5 +23,7 @@ build --incompatible_use_python_toolchains
 test --incompatible_use_python_toolchains
 
 # lint aspect on build
-build --aspects //tools/linting:aspect.bzl%lint
-build --output_groups=+report
+# build --aspects //tools/linting:aspect.bzl%lint
+# build --output_groups=+report
+
+try-import '.bazelrc.user'
