@@ -20,11 +20,8 @@ from functools import wraps
 from pathlib import Path
 from typing import Union
 
-from absl import flags, logging
-
-from labtools._src.util import is_installed, require
-
-FLAGS = flags.FLAGS
+from labtools._src.util import is_installed
+from labtools._src.util import require
 
 
 def setup_jupyter_env(ensure_project_root: Union[None, str] = 'WORKSPACE',
@@ -97,13 +94,14 @@ def get_results_dir(default_prefix: str = 'default') -> str:
   result_dir = f'/tmp/{default_prefix}-results'
   if mainfest_path is not None:
     result_dir = re.sub(
-      r'^(.+)(bazel-out)\/k8-fastbuild\/bin(.+)\/.+runfiles_manifest$',
+      r'^(.+)(bazel-out)\/\w+-fastbuild\/bin(.+)\/.+runfiles_manifest$',
       r'\1\2/results\3', mainfest_path)
     result_dir = result_dir
 
   return result_dir
 
 
+@require('absl')
 def configure_logging(third_party_offset: int = 0, **offsets):
   """ Configure logging formatters and levels
 
@@ -126,6 +124,8 @@ def configure_logging(third_party_offset: int = 0, **offsets):
   import logging as py_logging
   import warnings
 
+  from absl import logging
+  from absl.flags import FLAGS
   from absl.logging.converter import absl_to_standard
 
   warnings.filterwarnings("ignore",
@@ -134,7 +134,7 @@ def configure_logging(third_party_offset: int = 0, **offsets):
   logging.get_absl_handler().setFormatter(_logging_formatter())
 
   # default third party offsets
-  default_offsets = {'transformers': 0, 'datasets': -1}
+  default_offsets = {'transformers': 0, 'datasets': 1}
   offsets = {**default_offsets, **offsets}
 
   third_party_verbosity = FLAGS.verbosity - third_party_offset

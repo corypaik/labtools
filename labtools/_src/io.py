@@ -20,10 +20,10 @@ from pathlib import Path
 from typing import Any, Union
 
 import toolz.curried as T
-from absl import logging
 
-from labtools._src.util import (BestEffortJSONEncoder, CustomJSONEncoder,
-                                require)
+from labtools._src.util import BestEffortJSONEncoder
+from labtools._src.util import CustomJSONEncoder
+from labtools._src.util import require
 
 
 @require('yaml')
@@ -41,7 +41,6 @@ def load_and_check_yml(path: Union[str, Path], *loadkeys: list[str]):
       not present will have a value of None
   """
   import yaml
-  logging.debug('Loading YML from %s', path)
 
   # raw load
   with Path(path).open() as f:

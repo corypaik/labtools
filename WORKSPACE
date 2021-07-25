@@ -56,3 +56,10 @@ k8s_defaults(
 load("//config/infra/buildkite:deps.bzl", "buildkite_deps")
 
 buildkite_deps()
+
+##############
+# Test Deps
+##############
+load("//labtools:deps.bzl", _internal_labtools_deps = "labtools_deps")
+
+_internal_labtools_deps()

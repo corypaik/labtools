@@ -38,6 +38,7 @@ from labtools._src.util import unzip
 from labtools._src.util import flatten_dict
 from labtools._src.util import split_by_keys
 from labtools._src.util import get_differences
+from labtools._src.util import cleanup_cache_files
 
 from labtools._src.io import dump_json
 from labtools._src.io import dump_jsonl
@@ -65,6 +66,7 @@ __all__ = (
   'maybe_import',
   'require',
   'catch_exp_failures',
+  'cleanup_cache_files',
   'topylist',
   'compute_obj_hash',
   'CustomJSONEncoder',

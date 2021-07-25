@@ -16,7 +16,8 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
-from labtools._src.util import maybe_import, require
+from labtools._src.util import maybe_import
+from labtools._src.util import require
 
 
 @require('altair_saver')
@@ -147,12 +148,14 @@ def __plotly_theme():
 def setup_plotting_themes():
   """ Configure plotting themes for altair and plotly if installed. """
   # altair theme
-  if alt := maybe_import('altair'):
+  alt = maybe_import('altair')
+  if alt:
     alt.themes.register('labtools', __altair_theme)
     alt.themes.enable('labtools')
 
   # plotly theme
-  if plotly := maybe_import('plotly'):
+  plotly = maybe_import('plotly')
+  if plotly:
     template = __plotly_theme()
     plotly.io.templates['labtools'] = template
     plotly.io.templates.default = 'labtools'

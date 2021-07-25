@@ -1,31 +1,44 @@
-load("@labtools//pytype:defs.bzl", "pytype_library")
-load("@labtools__pip//:requirements.bzl", "requirement")
+load("@rules_python//python:defs.bzl", "py_library")
 load("@rules_python//python:packaging.bzl", "py_wheel")
 
 package(default_visibility = ["//visibility:private"])
 
-pytype_library(
+py_library(
     name = "labtools",
-    srcs = glob(
-        ["**/*.py"],
-        exclude = ["**/*_test.py"],
-    ),
-    data = [":altair-saver-deps"],
-    # PyType Dependencies
-    pytype_deps = [
-        "@pip//:ml_collections",
-        "@pip//:pyyaml",
-        "@pip//:icecream",
-    ],
+    srcs = ["__init__.py"],
+    srcs_version = "PY3",
     visibility = ["//visibility:public"],
     deps = [
-        requirement("absl-py"),
-        requirement("toolz"),
+        "//labtools/_src:config",
+        "//labtools/_src:huggingface",
+        "//labtools/_src:io",
+        "//labtools/_src:plotting",
+        "//labtools/_src:profiling",
+        "//labtools/_src:util",
     ],
 )
 
+#################
+# External deps.
+#   It should not be necessary for users to depend on this library, as it just
+#   packages 3rd-party pip/external dependencies. This allows users to depend on
+#   labtools w/ bazel w/o having to match our specific versions. However, in
+#   cases where the user is not using `toolz` or `absl-py` in their project,
+#   they may wish to depend on `labtools_deps`.
+
+# Minimal external deps necessary to use labtools.
+py_library(
+    name = "labtools_deps",
+    srcs = [
+        "@absl_archive//:absl",
+        "@toolz_archive//:toolz",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# defines the necessary files to leverage altair-saver w/ pdf export.
 filegroup(
-    name = "altair-saver-deps",
+    name = "altair-saver-pdf-deps",
     srcs = [
         "@labtools__yarn//:node_modules/vega-cli/bin/vg2pdf",
         "@labtools__yarn//canvas",
@@ -35,6 +48,10 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+##############
+# Distribution
+##############
+
 py_wheel(
     name = "wheel",
     distribution = "labtools",
@@ -42,4 +59,10 @@ py_wheel(
     version = "0.0.1.rc0",
     visibility = ["//visibility:public"],
     deps = [":labtools"],
+)
+
+filegroup(
+    name = "distribution",
+    srcs = glob(["**"]),
+    visibility = ["//:__pkg__"],
 )

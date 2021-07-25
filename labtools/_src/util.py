@@ -27,21 +27,23 @@ import hashlib
 import importlib
 import inspect
 import json
+import re
 import time
 from collections import OrderedDict
-from collections.abc import MutableMapping, Sequence
+from collections.abc import MutableMapping
+from collections.abc import Sequence
 from contextlib import contextmanager
-from functools import lru_cache, wraps
+from functools import lru_cache
+from functools import wraps
 from pathlib import Path
 from types import ModuleType
 from typing import Any, Callable, Literal, Tuple, TypeVar, Union, overload
 
 import toolz.curried as T
-from absl import flags, logging
+from absl import flags
+from absl import logging
 
 El = TypeVar('El')
-
-FLAGS = flags.FLAGS
 
 
 @lru_cache(maxsize=None)
@@ -64,7 +66,7 @@ def is_installed(name: str) -> bool:
   """ Checks if a module is installed.
   Args:
     name: name of the module. If name is for a submodule (contains a dot) and
-      the parent module is not installed, `importlib.util.find_spec` will raise 
+      the parent module is not installed, `importlib.util.find_spec` will raise
       a `ModuleNotFoundError`. We catch these errors and return False.
   """
   try:
@@ -73,14 +75,14 @@ def is_installed(name: str) -> bool:
     return False
   except ValueError as inst:
     if str(inst).endswith('.__spec__ is None'):
-      logging.info('Missing __spec__ for %s. Marking package as installed.', 
+      logging.info('Missing __spec__ for %s. Marking package as installed.',
                    str(inst).split('.', 1)[0])
       return True
     raise inst
   except:
     logging.exception('Unhandled exception for is_installed, returning False')
     return False
-    
+
 
 def require(*names: list[str]):
   """Create a decorator to check if a package is installed.
@@ -149,7 +151,8 @@ def catch_exp_failures(name: str, verbose: bool = True):
                       time.time() - tick)
   finally:
     # maybe emty torch cuda cache
-    if (torch := maybe_import('torch')) is not None:
+    if is_installed('torch'):
+      import torch
       torch.cuda.empty_cache()
     gc.collect()
 
@@ -203,7 +206,8 @@ class CustomJSONEncoder(json.JSONEncoder):
   def default(self, obj):
     # maybe handle config dicts
 
-    if (ml_collections := maybe_import('ml_collections')):
+    if is_installed('ml_collections'):
+      import ml_collections
       if isinstance(obj, ml_collections.FieldReference):
         return obj.get()
       elif isinstance(obj, ml_collections.ConfigDict):
@@ -368,3 +372,13 @@ def get_differences(x, y) -> str:
     max_rel_error = np.max(error[nonzero] / np.abs(y[nonzero]))
   remarks.append('Max relative difference: %f' % max_rel_error)
   return '\n'.join(remarks)
+
+
+def cleanup_cache_files(cachedir: Path, pattern: str, dry_run: bool = False):
+  for spath in cachedir.iterdir():
+    if re.match(pattern, spath.name) is not None:
+      logging.info('Removing cached file at %s (pattern=%s)', spath, pattern)
+      if not dry_run:
+        spath.unlink()
+    else:
+      logging.debug('Skipping cached file at %s (pattern=%s)', spath, pattern)
