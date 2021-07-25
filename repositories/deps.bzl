@@ -32,6 +32,9 @@ load("@linting_system//repositories:go_repositories.bzl", linting_deps = "go_dep
 load("@linting_system//repositories:repositories.bzl", linting_repos = "repositories")
 load("@rules_python//python:pip.bzl", "pip_install")
 
+## local
+load("//jinja:deps.bzl", "jinja_deps")
+
 def py_deps():
     """Pull in external Python packages needed by py binaries in this repo.
     """
@@ -76,5 +79,8 @@ def deps():
     # linting
     linting_repos()
     linting_deps()
+
+    ####
+    jinja_deps()
 
 labtools_deps = deps

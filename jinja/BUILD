@@ -1,18 +1,22 @@
-load(":jinja.bzl", "jinja")
-load("@labtools__pip//:requirements.bzl", "requirement")
+load("@rules_python//python:defs.bzl", "py_binary")
+load("//jinja:defs.bzl", "jinja")
 
-package(default_visibility = ["//:__subpackages__"])
+filegroup(
+    name = "distribution",
+    srcs = glob(["**"]),
+    visibility = ["//:__pkg__"],
+)
 
 py_binary(
     name = "jinja_runner",
     srcs = ["_src/jinja.py"],
     main = "_src/jinja.py",
-    visibility = ["//visibility:public"],
-    deps = [requirement("j2cli")],
+    # visibility = ["//visibility:public"],
+    deps = ["@jinja_archive//:jinja2"],
 )
 
 jinja(
     name = "test-1",
     data = {"flag.value": "hello"},
-    template = "dummy.yml.j2",
+    template = "_src/dummy.yml.j2",
 )
