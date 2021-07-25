@@ -62,6 +62,10 @@ terraform.tfstate*
 !/third_party/BUILD
 !/third_party/*.BUILD
 
+# allow patches
+!third_party/*.patch
+
+
 # debug logs & caches
 *.log
 *.cache
