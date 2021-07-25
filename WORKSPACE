@@ -14,7 +14,7 @@
 # ==============================================================================
 workspace(
     name = "labtools",
-    managed_directories = {"@yarn": ["node_modules"]},
+    managed_directories = {"@labtools_yarn": ["node_modules"]},
 )
 
 load("//repositories:repositories.bzl", "labtools_repos")

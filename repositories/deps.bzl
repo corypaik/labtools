@@ -15,7 +15,7 @@
 
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
-load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "npm_install")
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 load("@io_bazel_rules_docker//nodejs:image.bzl", nodejs_image_repos = "repositories")
 load("@io_bazel_rules_docker//python3:image.bzl", py3_image_repos = "repositories")
@@ -51,11 +51,12 @@ def deps():
 
     bazel_skylib_workspace()
 
-    yarn_install(
-        name = "labtools__yarn",
-        package_json = "@labtools//:package.json",
+    node_repositories(package_json = ["//:package.json"])
+    npm_install(
+        name = "labtools__npm",
+        package_json = "//:package.json",
         quiet = False,
-        yarn_lock = "@labtools//:yarn.lock",
+        package_lock_json = "//:package-lock.json",
     )
 
     sass_repositories()

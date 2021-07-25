@@ -14,6 +14,8 @@
 # ==============================================================================
 """ Bazel rule for filling templates with Jinja2 """
 
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
+
 def assoc_in(d, keys, value, factory = dict):
     """ Update value in a (potentially) nested dictionary
 
@@ -167,3 +169,21 @@ Given an input template and data, run jinja2 to produce an filled output file
 with the specified extension.
 """,
 )
+
+def json_data(name, **kwargs):
+    """ Create a json data file that can be used with jinja.
+
+    Args:
+        name: name of the rule, will be the name of the json file.
+        **kwargs: Any keyword arguments will be interpreted as data and
+            written to the json file
+    """
+
+    data_encoded = json.encode_indent(kwargs)
+
+    write_file(
+        name = name,
+        out = "%s.json" % name,
+        content = [data_encoded],
+        newline = "unix",
+    )

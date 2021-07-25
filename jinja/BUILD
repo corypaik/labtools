@@ -11,7 +11,7 @@ py_binary(
     name = "jinja_runner",
     srcs = ["_src/jinja.py"],
     main = "_src/jinja.py",
-    # visibility = ["//visibility:public"],
+    visibility = ["//visibility:public"],
     deps = ["@jinja_archive//:jinja2"],
 )
 

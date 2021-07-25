@@ -40,10 +40,10 @@ py_library(
 filegroup(
     name = "altair-saver-pdf-deps",
     srcs = [
-        "@labtools__yarn//:node_modules/vega-cli/bin/vg2pdf",
-        "@labtools__yarn//canvas",
-        "@labtools__yarn//vega-cli",
-        "@labtools__yarn//vega-lite",
+        "@labtools__npm//:node_modules/vega-cli/bin/vg2pdf",
+        "@labtools__npm//canvas",
+        "@labtools__npm//vega-cli",
+        "@labtools__npm//vega-lite",
     ],
     visibility = ["//visibility:public"],
 )

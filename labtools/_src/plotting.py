@@ -32,7 +32,7 @@ def altair_saver():
   """
   # patch paths to vega binaries
   runfiles_dir = Path(os.getenv('PWD', os.getcwd())).parent
-  node_modules = runfiles_dir / 'labtools__yarn/node_modules'
+  node_modules = runfiles_dir / 'labtools__npm/node_modules'
   os.environ["PATH"] += f":{node_modules}/vega-cli/bin"
   os.environ["PATH"] += f":{node_modules}/vega-lite/bin"
 
