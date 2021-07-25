@@ -84,3 +84,25 @@ You can find more information about JupyterLab [here](https://github.com/jupyter
 The library `@labtools//labtools` provides various utilities for use cases such as experiment managers with error handling and cache cleanup, profiling, working with tfrecords, converting arbitrary array-type objects to lists, etc.
 
 This library relies only on `toolz` and `absl` at an import-level, and other third-party packages for specific functionalities. Some of these are givens, e.g. you won't need to clean up PyTorch's CUDA cache PyTorch is installed. Other functions, such as loading YML files, do require specific packages. See the error messages or `@require('<pkg>')` decorators for details on what package is required.
+
+**NOTE:** `absl` and `toolz` are no longer dependencies of the `labtools` package. This is intended to allow you to depend on labtools with Bazel without having to match our specific versions.
+
+If you're not using `toolz` or `absl-py` in your project, you'll need to install the dependecies from your WORKSPACE file and depend on `@labtools//labtools:labtools_deps`:
+
+```python
+# in WORKSPACE:
+load("@labtools//labtools:deps.bzl", labtools_pip_deps = "labtools_deps")
+
+labtools_pip_deps()
+
+# =================
+# in BUILD
+
+py_library(
+  ...
+  deps = [
+    "@labtools//labtools",
+    "@labtools//labtools:labtools_deps",
+  ]
+)
+```
