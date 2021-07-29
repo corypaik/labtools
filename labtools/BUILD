@@ -1,9 +1,11 @@
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 load("@rules_python//python:defs.bzl", "py_library")
 load("@rules_python//python:packaging.bzl", "py_wheel")
+load("//pytype:defs.bzl", "pytype_library")
 
 package(default_visibility = ["//visibility:private"])
 
-py_library(
+pytype_library(
     name = "labtools",
     srcs = ["__init__.py"],
     srcs_version = "PY3",
@@ -11,11 +13,23 @@ py_library(
     deps = [
         "//labtools/_src:config",
         "//labtools/_src:huggingface",
-        "//labtools/_src:io",
+        "//labtools/_src:io_util",
         "//labtools/_src:plotting",
         "//labtools/_src:profiling",
         "//labtools/_src:util",
     ],
+)
+
+bool_flag(
+    name = "include_py_deps",
+    build_setting_default = False,
+    visibility = ["//visibility:private"],
+)
+
+config_setting(
+    name = "include_packaged_deps",
+    flag_values = {":include_py_deps": "True"},
+    visibility = ["//visibility:public"],
 )
 
 #################

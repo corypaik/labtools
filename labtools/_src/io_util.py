@@ -65,7 +65,7 @@ def dump_jsonl(path: Union[Path, str], data: list[dict[str, Any]],
   encoder_cls = BestEffortJSONEncoder if relaxed else CustomJSONEncoder
   # maybe it's a datframe
   if str(type(data)) == "<class 'pandas.core.frame.DataFrame'>":
-    data.to_json(path, orient='records', lines=True)
+    data.to_json(path, orient='records', lines=True)  # pytype: disable=attribute-error
   else:
     path.write_text('\n'.join([
       json.dumps(obj, cls=encoder_cls) for obj in data]))

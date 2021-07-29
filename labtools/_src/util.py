@@ -37,10 +37,16 @@ from functools import lru_cache
 from functools import wraps
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Callable, Literal, Tuple, TypeVar, Union, overload
+from typing import Any, Callable, Tuple, TypeVar, Union, overload
+
+try:
+  from typing import Literal
+except ImportError:  # python 3.7
+  from typing_extensions import Literal
+except ImportError:  # no typing_extensions
+  Literal = list
 
 import toolz.curried as T
-from absl import flags
 from absl import logging
 
 El = TypeVar('El')
@@ -84,7 +90,7 @@ def is_installed(name: str) -> bool:
     return False
 
 
-def require(*names: list[str]):
+def require(*names: str):
   """Create a decorator to check if a package is installed.
 
   Args:

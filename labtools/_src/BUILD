@@ -12,10 +12,10 @@ py_library(
     srcs = ["config.py"],
     srcs_version = "PY3",
     visibility = ["//labtools:__pkg__"],
-    deps = [
-        "//labtools/_src:util",
-        # pip: absl-py
-    ],
+    deps = ["//labtools/_src:util"] + select({
+        "//labtools:include_packaged_deps": ["@absl_archive//:absl"],
+        "//conditions:default": [],
+    }),
 )
 
 py_library(
@@ -23,20 +23,24 @@ py_library(
     srcs = ["huggingface.py"],
     srcs_version = "PY3",
     visibility = ["//labtools:__pkg__"],
-    deps = [
-        # pip: absl-py
-    ],
+    deps = select({
+        "//labtools:include_packaged_deps": ["@absl_archive//:absl"],
+        "//conditions:default": [],
+    }),
 )
 
 py_library(
-    name = "io",
-    srcs = ["io.py"],
+    name = "io_util",
+    srcs = ["io_util.py"],
     srcs_version = "PY3",
     visibility = ["//labtools:__pkg__"],
-    deps = [
-        "//labtools/_src:util",
-        # pip :toolz
-    ],
+    deps = ["//labtools/_src:util"] + select({
+        "//labtools:include_packaged_deps": [
+            "@toolz_archive//:toolz",
+            "@pip//:typing-extensions",
+        ],
+        "//conditions:default": [],
+    }),
 )
 
 py_library(
@@ -52,10 +56,13 @@ py_library(
     srcs = ["profiling.py"],
     srcs_version = "PY3",
     visibility = ["//labtools:__pkg__"],
-    deps = [
-        "//labtools/_src:util",
-        # pip: absl-py
-    ],
+    deps = ["//labtools/_src:util"] + select({
+        "//labtools:include_packaged_deps": [
+            "@absl_archive//absl/logging",
+            "@absl_archive//absl/flags",
+        ],
+        "//conditions:default": [],
+    }),
 )
 
 py_library(
@@ -63,10 +70,13 @@ py_library(
     srcs = ["util.py"],
     srcs_version = "PY3",
     visibility = ["//labtools:__pkg__"],
-    deps = [
-        # pip: absl-py
-        # pip: toolz
-    ],
+    deps = select({
+        "//labtools:include_packaged_deps": [
+            "@absl_archive//absl/logging",
+            "@pip//:typing-extensions",
+        ],
+        "//conditions:default": [],
+    }),
 )
 
 ################
@@ -88,14 +98,14 @@ py_test(
 )
 
 py_test(
-    name = "io_test",
-    srcs = ["io_test.py"],
+    name = "io_util_test",
+    srcs = ["io_util_test.py"],
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [
-        "//labtools/_src:io",
-        "@absl_archive//:absl",
-        "@toolz_archive//:toolz",
+        "//labtools/_src:io_util",
+        "@absl_archive//absl/testing:absltest",
+        "@absl_archive//absl/testing:parameterized",
     ],
 )
 

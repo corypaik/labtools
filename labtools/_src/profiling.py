@@ -34,7 +34,8 @@ from contextlib import contextmanager
 from functools import wraps
 from typing import Callable, Optional, Union
 
-from absl import flags, logging
+from absl import flags
+from absl import logging
 
 from labtools._src.util import maybe_import
 
@@ -74,9 +75,11 @@ def synchroized(fn: Callable, sync_in: bool = True,
     return jax.jit(lambda x: jax.device_put(x))(0.0).block_until_ready()  # pytype: disable=attribute-error
 
   _sync_fns = []
-  if (torch := maybe_import('torch')) is not None:
+  torch = maybe_import('torch')
+  jax = maybe_import('jax')
+  if torch is not None:
     _sync_fns.append(torch.cuda.synchronize)
-  if (jax := maybe_import('jax')) is not None:
+  if jax is not None:
     _sync_fns.append(_jax_blocker)
 
   _sync_fn = lambda: [f() for f in _sync_fns]
@@ -183,7 +186,8 @@ class Profiler(metaclass=Singleton):
   def __str__(self):
     out = f'Profiler results ({self._default_name})\n'
     if len(self._counters) > 0:
-      if (tabulate := maybe_import('tabulate')):
+      tabulate = maybe_import('tabulate')
+      if tabulate:
         out += tabulate(self._counters, headers='keys')
       else:
         out += str(self._counters)

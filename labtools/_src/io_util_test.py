@@ -18,13 +18,13 @@ from pathlib import Path
 from absl.testing import absltest
 from absl.testing import parameterized
 
-from labtools._src import io
+from labtools._src.io_util import dump_jsonl
 
 
 class JsonlTest(parameterized.TestCase):
   def test_dump_jsonl(self):
     data = [{'a': 0}, {'b': 1}, {'me': 'the'}]
-    io.dump_jsonl(self.create_tempfile(), data)
+    dump_jsonl(self.create_tempfile(), data)
 
 
 if __name__ == '__main__':

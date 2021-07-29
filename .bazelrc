@@ -26,4 +26,10 @@ test --incompatible_use_python_toolchains
 # build --aspects //tools/linting:aspect.bzl%lint
 # build --output_groups=+report
 
-try-import '.bazelrc.user'
+# include py deps by default - they are not included by default for compatibility
+# with downstream projects.
+build --//labtools:include_py_deps=True
+test --//labtools:include_py_deps=True
+
+
+try-import  %workspace%/.user.bazelrc

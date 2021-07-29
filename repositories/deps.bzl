@@ -17,6 +17,7 @@ load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "npm_install")
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+load("@io_bazel_rules_docker//container:container.bzl", "container_pull")
 load("@io_bazel_rules_docker//nodejs:image.bzl", nodejs_image_repos = "repositories")
 load("@io_bazel_rules_docker//python3:image.bzl", py3_image_repos = "repositories")
 load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
@@ -64,6 +65,16 @@ def deps():
     # docker
     container_repositories()
     container_deps()
+
+    # Add support for python 3.7
+    # TODO(corypaik): remove once @io_bazel_rules_docker updates.
+    container_pull(
+        name = "py3_image_base",
+        digest = "sha256:ef51e4c3f5a123b14078731c8ae9f43223855ca761a430e435fdb413a1fbea45",
+        registry = "gcr.io",
+        repository = "distroless/python3",
+    )
+
     py3_image_repos()
     nodejs_image_repos()
 

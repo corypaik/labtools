@@ -40,10 +40,10 @@ from labtools._src.util import split_by_keys
 from labtools._src.util import get_differences
 from labtools._src.util import cleanup_cache_files
 
-from labtools._src.io import dump_json
-from labtools._src.io import dump_jsonl
-from labtools._src.io import load_jsonl
-from labtools._src.io import load_and_check_yml
+from labtools._src.io_util import dump_json
+from labtools._src.io_util import dump_jsonl
+from labtools._src.io_util import load_jsonl
+from labtools._src.io_util import load_and_check_yml
 
 from labtools._src.config import setup_jupyter_env
 from labtools._src.config import get_results_dir
