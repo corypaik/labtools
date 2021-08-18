@@ -48,8 +48,7 @@ load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
 
 k8s_defaults(
     name = "k8s_deploy",
-    cluster = "gke_kln-lab_us-central1-a_kln-lab-k8s",
-    image_chroot = "us-docker.pkg.dev/kln-lab/kln",
+    image_chroot = "gcr.io/kln-lab/projects/labtools",
     kind = "deployment",
 )
 

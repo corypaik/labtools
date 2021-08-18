@@ -35,6 +35,7 @@ load("@rules_python//python:pip.bzl", "pip_install")
 
 ## local
 load("//jinja:deps.bzl", "jinja_deps")
+load("//tools:defs.bzl", "clean_dep")
 
 def py_deps():
     """Pull in external Python packages needed by py binaries in this repo.
@@ -42,8 +43,9 @@ def py_deps():
     excludes = native.existing_rules().keys()
     if "labtools__pip" not in excludes:
         pip_install(
+            python_interpreter = "python3.7",
             name = "labtools__pip",
-            requirements = "@labtools//tools:requirements.txt",
+            requirements = clean_dep("//tools:requirements.txt"),
         )
 
 def deps():
@@ -52,12 +54,12 @@ def deps():
 
     bazel_skylib_workspace()
 
-    node_repositories(package_json = ["//:package.json"])
+    node_repositories(package_json = [clean_dep("//:package.json")])
     npm_install(
         name = "labtools__npm",
-        package_json = "//:package.json",
+        package_json = clean_dep("//:package.json"),
         quiet = False,
-        package_lock_json = "//:package-lock.json",
+        package_lock_json = clean_dep("//:package-lock.json"),
     )
 
     sass_repositories()

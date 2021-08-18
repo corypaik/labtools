@@ -15,6 +15,7 @@
 """ Jupyter Integration Macros """
 
 load("@rules_python//python:defs.bzl", "py_binary")
+load("//tools:defs.bzl", "clean_dep")
 
 def jupyterlab_server(name = "jupyterlab", **kwargs):
     """ A macro for creating a Jupyterlab Server.
@@ -24,8 +25,8 @@ def jupyterlab_server(name = "jupyterlab", **kwargs):
       **kwargs: are passed to py_binary, with srcs and deps attrs modified
     """
 
-    deps = kwargs.pop("deps", []) + ["@labtools//jupyter:jupyterlab_helper"]
-    srcs = kwargs.pop("srcs", []) + ["@labtools//jupyter:jupyterlab_helper"]
+    deps = kwargs.pop("deps", []) + [clean_dep("//jupyter:jupyterlab_helper")]
+    srcs = kwargs.pop("srcs", []) + [clean_dep("//jupyter:jupyterlab_helper")]
 
     # patch env
     env = kwargs.pop("env", {})

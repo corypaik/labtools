@@ -15,6 +15,7 @@
 """ PyType Integration Macros"""
 
 load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
+load("//tools:defs.bzl", "clean_dep")
 
 def pytype_binary(name, pytype_deps = [], **kwargs):
     """Proxy for py_binary that implicitly creates a PyType test.
@@ -103,8 +104,8 @@ def pytype_genrunle(
     """
 
     kwargs.pop("main", [])
-    deps = kwargs.pop("deps", []) + ["@labtools//pytype:pytype_helper"]
-    srcs = kwargs.pop("srcs", []) + ["@labtools//pytype:pytype_helper"]
+    deps = kwargs.pop("deps", []) + [clean_dep("//pytype:pytype_helper")]
+    srcs = kwargs.pop("srcs", []) + [clean_dep("//pytype:pytype_helper")]
 
     args = kwargs.pop("args", [])
     args = pytype_args
