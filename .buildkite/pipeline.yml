@@ -1,7 +1,5 @@
 steps:
   - label: ":bazel: Build & Test"
     commands:
-      - "rm -rf node_modules"
-      - "bazel clean"
       - "bazel build //... --keep_going"
       - "bazel test //... --keep_going"
