@@ -1,0 +1,25 @@
+# Configuration for https://github.com/zeke/semantic-pull-requests
+
+# Always validate the PR title, and ignore the commits.
+titleOnly: true
+
+scopes:
+  - labtools
+  - jupyter
+  - pytype
+  - jinja
+
+# By default types specified in commitizen/conventional-commit-types is used.
+# See: https://github.com/commitizen/conventional-commit-types/blob/v3.0.0/index.json
+# You can override the valid types
+types:
+  - build
+  - ci
+  - docs
+  - feat
+  - fix
+  - perf
+  - refactor
+  - style
+  - test
+  - revert
