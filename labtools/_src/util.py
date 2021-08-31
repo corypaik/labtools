@@ -14,11 +14,11 @@
 # ==============================================================================
 """ A low dependence collection of general utilities.
 
-  This file relies on third-party packages for specfic fucnctionalities. Some
+  This file relies on third-party packages for specific functionalities. Some
   of these are givens, e.g. you won't need to convert Torch Tensors -> lists
   unless PyTorch is installed. Others, such as loading yml files, do require
   specific packages. See the error messages or `@require('<pkg>')` decorators
-  for details on what packeges are required.
+  for details on what packages are required.
 """
 from __future__ import annotations
 
@@ -35,6 +35,7 @@ from collections.abc import Sequence
 from contextlib import contextmanager
 from functools import lru_cache
 from functools import wraps
+from importlib.util import find_spec
 from pathlib import Path
 from types import ModuleType
 from typing import Any, Callable, Tuple, TypeVar, Union, overload
@@ -76,7 +77,7 @@ def is_installed(name: str) -> bool:
       a `ModuleNotFoundError`. We catch these errors and return False.
   """
   try:
-    return importlib.util.find_spec(name) is not None
+    return find_spec(name) is not None
   except ModuleNotFoundError:
     return False
   except ValueError as inst:
