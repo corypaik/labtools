@@ -32,4 +32,18 @@ build --//labtools:include_py_deps=True
 test --//labtools:include_py_deps=True
 
 
-try-import  %workspace%/.user.bazelrc
+##############
+# buildkite ci
+##############
+# logging config
+build:buildkite --show_progress_rate_limit=5
+build:buildkite --curses=yes --color=yes
+
+# keep going + give more verbose errors
+build:buildkite --keep_going --verbose_failure
+
+################
+# user config
+################
+
+try-import %workspace%/user.bazelrc
