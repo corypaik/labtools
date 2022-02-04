@@ -1,122 +1,123 @@
+# Copyright 2021 Cory Paik. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
 load("@rules_python//python:defs.bzl", "py_library", "py_test")
 
-###############
-# core libs.
-#  These should only have internal deps. pip/external dependencies are commented
-#  for documentation purposes only. This allows users to depend on labtools w/
-#  bazel w/o having to match our specific versions. We should add version checks
-#  somewhere if possible.
+package(default_visibility = ["//labtools:internal"])
 
 py_library(
     name = "config",
     srcs = ["config.py"],
-    srcs_version = "PY3",
-    visibility = ["//labtools:__pkg__"],
-    deps = ["//labtools/_src:util"] + select({
-        "//labtools:include_packaged_deps": ["@absl_archive//:absl"],
-        "//conditions:default": [],
-    }),
+    imports = ["../.."],
+    deps = [
+        ":util",
+        "@pypi_absl_py//:pkg",
+    ],
 )
 
 py_library(
     name = "huggingface",
     srcs = ["huggingface.py"],
-    srcs_version = "PY3",
-    visibility = ["//labtools:__pkg__"],
-    deps = select({
-        "//labtools:include_packaged_deps": ["@absl_archive//:absl"],
-        "//conditions:default": [],
-    }),
+    imports = ["../.."],
+    deps = [
+        "@pypi_absl_py//:pkg",
+    ],
 )
 
 py_library(
     name = "io_util",
     srcs = ["io_util.py"],
-    srcs_version = "PY3",
-    visibility = ["//labtools:__pkg__"],
-    deps = ["//labtools/_src:util"] + select({
-        "//labtools:include_packaged_deps": [
-            "@toolz_archive//:toolz",
-            "@pip//:typing-extensions",
-        ],
-        "//conditions:default": [],
-    }),
+    imports = ["../.."],
+    deps = [
+        ":util",
+        "@pypi_absl_py//:pkg",
+        "@pypi_cytoolz//:pkg",
+        "@pypi_requests//:pkg",
+        "@rules_python//python/runfiles",
+    ],
 )
 
-py_library(
-    name = "plotting",
-    srcs = ["plotting.py"],
-    srcs_version = "PY3",
-    visibility = ["//labtools:__pkg__"],
-    deps = ["//labtools/_src:util"],
-)
 
 py_library(
     name = "profiling",
     srcs = ["profiling.py"],
-    srcs_version = "PY3",
-    visibility = ["//labtools:__pkg__"],
-    deps = ["//labtools/_src:util"] + select({
-        "//labtools:include_packaged_deps": [
-            "@absl_archive//absl/logging",
-            "@absl_archive//absl/flags",
-        ],
-        "//conditions:default": [],
-    }),
+    imports = ["../.."],
+    deps = [
+        ":util",
+        "@pypi_absl_py//:pkg",
+    ],
+)
+
+py_test(
+    name = "profiling_test",
+    srcs = ["profiling_test.py"],
+    deps = [
+        ":profiling",
+        "@pypi_absl_py//:pkg",
+    ],
 )
 
 py_library(
     name = "util",
     srcs = ["util.py"],
-    srcs_version = "PY3",
-    visibility = ["//labtools:__pkg__"],
-    deps = select({
-        "//labtools:include_packaged_deps": [
-            "@absl_archive//absl/logging",
-            "@pip//:typing-extensions",
-        ],
-        "//conditions:default": [],
-    }),
+    imports = ["../.."],
+    deps = [
+        "@pypi_absl_py//:pkg",
+        "@pypi_cytoolz//:pkg",
+    ],
 )
 
-################
-# Tests
-# unlike the core libs, these are not exported, and should reference all deps
-# necessary to run. certain tests require additional packages to test specific
-# features/codepaths. Ideally we could mock these somehow.
 py_test(
     name = "config_test",
     srcs = ["config_test.py"],
-    python_version = "PY3",
-    srcs_version = "PY3",
     deps = [
-        "//labtools/_src:config",
-        "@absl_archive//:absl",
-        "@pip//:ml_collections",
-        "@toolz_archive//:toolz",
+        ":config",
+        "@pypi_absl_py//:pkg",
+        "@pypi_cytoolz//:pkg",
+        "@pypi_fancyflags//:pkg",
+        "@pypi_ml_collections//:pkg",
     ],
 )
 
 py_test(
     name = "io_util_test",
     srcs = ["io_util_test.py"],
-    python_version = "PY3",
-    srcs_version = "PY3",
     deps = [
-        "//labtools/_src:io_util",
-        "@absl_archive//absl/testing:absltest",
-        "@absl_archive//absl/testing:parameterized",
+        ":io_util",
+        "@pypi_absl_py//:pkg",
+        "@pypi_fsspec//:pkg",
+    ],
+)
+
+py_library(
+    name = "gin_utils",
+    srcs = ["gin_utils.py"],
+    imports = ["../.."],
+    deps = [
+        ":util",
+        "@pypi_absl_py//:pkg",
+        "@pypi_fsspec//:pkg",
+        "@pypi_gin_config//:pkg",
     ],
 )
 
 py_test(
-    name = "plotting_test",
-    srcs = ["plotting_test.py"],
-    data = ["//labtools:altair-saver-pdf-deps"],
+    name = "gin_utils_test",
+    srcs = ["gin_utils_test.py"],
+    main = "gin_utils_test.py",
     deps = [
-        "//labtools/_src:plotting",
-        "@absl_archive//:absl",
-        "@pip//:altair",
-        "@pip//:altair-saver",
+        ":gin_utils",
+        "@pypi_absl_py//:pkg",
     ],
 )

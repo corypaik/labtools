@@ -1,10 +1,10 @@
-# Copyright 2021 The LabTools Authors
+# Copyright 2021 Cory Paik. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     https://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,10 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-""" Simple compatibility test for numpyb and Pytorch """
-from __future__ import annotations
 
-import numpy
-import torch
+load("@rules_python//python:defs.bzl", "py_library")
 
-print(torch.cuda.is_available())
+package(default_visibility = ["//labtools:__pkg__"])
+
+py_library(
+    name = "_testcase",
+    srcs = ["_testcase.py"],
+    imports = ["../../.."],
+    deps = [
+        "//labtools/_src:util",
+        "@pypi_absl_py//:pkg",
+    ],
+)

@@ -1,4 +1,4 @@
-# Copyright 2021 The LabTools Authors
+# Copyright 2021 Cory Paik. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,15 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+""" Defines the public `labtools.testing` API. """
 
-import os
-import re
-import sys
+from labtools._src.testing._testcase import LzTestCase
 
-import jupyterlab
-from jupyterlab.labapp import main
-
-if __name__ == '__main__':
-  os.environ['JUPYTERLAB_DIR'] = str(os.path.dirname(jupyterlab.__file__))
-  sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
-  sys.exit(main())
+__all__ = ('LzTestCase',)

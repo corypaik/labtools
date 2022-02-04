@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-# Copyright 2021 The LabTools Authors
+# Copyright 2021 Cory Paik. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +13,20 @@
 # limitations under the License.
 # ==============================================================================
 
-set -eu
+from labtools._src.gin_utils import bool_fn
+from labtools._src.gin_utils import parse_gin_flags
+from labtools._src.gin_utils import register_gin_flags
+from labtools._src.gin_utils import rewrite_gin_args
+from labtools._src.gin_utils import run
+from labtools._src.gin_utils import sum_fn
+from labtools._src.gin_utils import summarize_gin_config
 
-# setup bazel config
-cat > user.bazelrc <<EOF
-build --config=buildkite
-EOF
+__all__ = (
+    'register_gin_flags',
+    'parse_gin_flags',
+    'rewrite_gin_args',
+    'summarize_gin_config',
+    'run',
+    'sum_fn',
+    'bool_fn',
+)

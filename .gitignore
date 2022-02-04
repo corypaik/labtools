@@ -56,15 +56,7 @@ coverage.xml
 # terraform
 .terraform/
 terraform.tfstate*
-
-# disallow third_party (except build files)
-/third_party/**
-!/third_party/BUILD
-!/third_party/*.BUILD
-
-# allow patches
-!third_party/*.patch
-
+user.*.tfvars
 
 # debug logs & caches
 *.log
@@ -75,10 +67,16 @@ terraform.tfstate*
 /connect.lock
 /typings
 
-# user-specific bazelrc
-.bazelrc.user
+# no user bazelrc
+user.bazelrc
+
+# secrets
+/config/secrets/
+
+# run logs and results
+/_results/
+/logs/
 
 # ---------------------
 # Project Specific
 # ---------------------
-/_archive/

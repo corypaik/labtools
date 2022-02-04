@@ -1,5 +1,0 @@
-steps:
-  - label: ":bazel: Build & Test"
-    commands:
-      - "bazel build //..."
-      - "bazel test //..."

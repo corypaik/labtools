@@ -1,4 +1,4 @@
-# Copyright 2021 The LabTools Authors
+# Copyright 2021 Cory Paik. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,25 +12,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
+""" Provides configuration utilities """
 from __future__ import annotations
 
-import re
 from functools import wraps
+import inspect
+import logging as py_logging
+import os
 from pathlib import Path
-from typing import Union
+import sys
+from types import ModuleType
+from typing import Callable, Optional, TypeVar, Union
+import warnings
 
-from labtools._src.util import is_installed
+from absl import flags
+from absl.flags import FLAGS
+from absl import logging
+from absl.logging.converter import absl_to_standard
+
+from labtools._src.util import maybe_import
 from labtools._src.util import require
+
+_T = TypeVar('_T')
+
+flags.disclaim_key_flags()
 
 
 def setup_jupyter_env(ensure_project_root: Union[None, str] = 'WORKSPACE',
                       max_parents: int = 1):
-  """  Setup a jupyter notebook environemnt.
+  """  Setup a jupyter notebook environment.
 
   Args:
     ensure_project_root: File name that indicates the desired root. When using
-      bazel this is usually the WORSPACE file. To disable this behavior, use
+      bazel this is usually the WORKSPACE file. To disable this behavior, use
       ensure_project_root=None.
     max_parents: maximum number of parent directories to climb out of. This is a
       safegaurd against cd failures to find the specified file.
@@ -43,19 +57,17 @@ def setup_jupyter_env(ensure_project_root: Union[None, str] = 'WORKSPACE',
         12:00:00 ── INFO ▷ I work now!
 
   """
-  import logging as py_logging
-  import os
-  import sys
 
-  py_logging.basicConfig(format="%(asctime)s ── %(levelname)s ▷ %(message)s",
-                         datefmt="%H:%M:%S",
+  py_logging.basicConfig(format='%(asctime)s ── %(levelname)s ▷ %(message)s',
+                         datefmt='%H:%M:%S',
                          handlers=[py_logging.StreamHandler(sys.stdout)])
-  logging = py_logging.getLogger('absl')
-  logging.setLevel('INFO')
+  logger = py_logging.getLogger('absl')
+  logger.setLevel('INFO')
 
   # check for a workspace file
   if ensure_project_root:
     og_pwd = os.getcwd()
+    pdepth = 0
     try:
       for pdepth in range(max_parents + 1):
         if Path(ensure_project_root).is_file():
@@ -63,42 +75,17 @@ def setup_jupyter_env(ensure_project_root: Union[None, str] = 'WORKSPACE',
         os.chdir('..')
       else:
         logging.warning(
+            'Failed to find %s in CWD at level=%d. PWD=%s, '
+            'Original PWD=%s. Switching back to Original wd.',
+            ensure_project_root, pdepth, os.getcwd(), og_pwd)
+        # switch back as a safegaurd.
+        os.chdir(og_pwd)
+    except OSError:
+      logging.exception(
           'Failed to find %s in CWD at level=%d. PWD=%s, '
           'Original PWD=%s. Switching back to Original wd.',
           ensure_project_root, pdepth, os.getcwd(), og_pwd)
-        # switch back as a safegaurd.
-        os.chdir(og_pwd)
-    except:
-      logging.exception(
-        'Failed to find %s in CWD at level=%d. PWD=%s, '
-        'Original PWD=%s. Switching back to Original wd.', ensure_project_root,
-        pdepth, os.getcwd(), og_pwd)
       os.chdir(og_pwd)
-
-
-def get_results_dir(default_prefix: str = 'default') -> str:
-  """ Get the Bazel Result Path
-    Results stored in _bazel/out/results/<loc> where <loc> is the relative path
-    in the source tree.
-    For example, if the binary is in `projects/my_project/run.py`, then the
-    results_dir would be `_bazel/out/results/projects/my_project`.
-    This ensures that results are easily accesable between runs and from the
-    workspace. Note that these files will still be cleaned up by `bazel clean`.
-
-  Args:
-    default_prefix: tmp dir prefix to use if not ran with Bazel
-
-  """
-  import os
-  mainfest_path = os.getenv('RUNFILES_MANIFEST_FILE', None)
-  result_dir = f'/tmp/{default_prefix}-results'
-  if mainfest_path is not None:
-    result_dir = re.sub(
-      r'^(.+)(bazel-out)\/\w+-fastbuild\/bin(.+)\/.+runfiles_manifest$',
-      r'\1\2/results\3', mainfest_path)
-    result_dir = result_dir
-
-  return result_dir
 
 
 @require('absl')
@@ -117,21 +104,13 @@ def configure_logging(third_party_offset: int = 0, **offsets):
     transformers and error for datasets.
   Args:
     third_party_offset: offset to add to all third party verbosity levels. For
-      example, in a dristributied configuration, one could use a value of `0` on
+      example, in a distributed configuration, one could use a value of `0` on
       the main process and `1` on all other processes.
     **offset: offsets for third party libraries
   """
-  import logging as py_logging
-  import warnings
 
-  from absl import logging
-  from absl.flags import FLAGS
-  from absl.logging.converter import absl_to_standard
-
-  warnings.filterwarnings("ignore",
+  warnings.filterwarnings('ignore',
                           message='The given NumPy array is not writeable')
-
-  logging.get_absl_handler().setFormatter(_logging_formatter())
 
   # default third party offsets
   default_offsets = {'transformers': 0, 'datasets': 1}
@@ -144,29 +123,18 @@ def configure_logging(third_party_offset: int = 0, **offsets):
     # clip verbosity
     verbosity = max(third_party_verbosity - offset, logging.FATAL)
     logger.setLevel(absl_to_standard(verbosity))
-    # apply format
-    for handler in logger.handlers:
-      handler.setFormatter(_logging_formatter())
-
+    # TODO: apply format
   # ic only in debug if installed.
-  if is_installed('icecream'):
-    from icecream import ic
+  icecream = maybe_import('icecream')
+  if icecream is not None:
     if FLAGS.verbosity < 1:
-      ic.disable()
+      icecream.ic.disable()
     else:
-      ic.configureOutput(includeContext=True)
+      icecream.ic.configureOutput(includeContext=True)
 
 
-def _logging_formatter():
-  """ Logginging formatter """
-  import logging as py_logging
-  return py_logging.Formatter(
-    fmt="%(asctime)s ── %(levelname)s ── %(name)s ▷ %(message)s",
-    datefmt="%m/%d/%Y %H:%M:%S")
-
-
-@require('ml_collections')
-def frozen(fn):
+@require('ml_collections', as_arg=True)
+def frozen(ml_collections, fn):
   """ Wrapper to freeze a configuration function.
     Args:
       fn (Callable[[], ConfigDict]): configuration function
@@ -174,10 +142,107 @@ def frozen(fn):
     Returns:
       FrozenConfigDict
   """
-  from ml_collections import FrozenConfigDict
 
   @wraps(fn)
   def wrapped(*args, **kwargs):
-    return FrozenConfigDict(fn(*args, **kwargs))
+    return ml_collections.FrozenConfigDict(fn(*args, **kwargs))
 
   return wrapped
+
+
+@require('fancyflags', as_arg=True)
+def _make_configurable(
+    ff: ModuleType,
+    fn_or_cls: Callable[..., _T],
+    name: Optional[str],
+    module: Optional[str],
+) -> Callable[..., _T]:
+
+  # name is none, use function name
+  if name is None:
+    name = fn_or_cls.__name__
+
+  # if module is provided, will be model.name
+  if module is not None:
+    name = '.'.join([module, name])
+
+  doc_str = fn_or_cls.__doc__ or ''
+  doc_str_lines = doc_str.splitlines()
+  doc_str_header = doc_str_lines[0] if len(doc_str_lines) > 0 else ''
+  ff_fn_partial_def = ff.DEFINE_auto(name, fn_or_cls, doc_str_header)
+
+  # ArgSpec(args, varargs, keywords, defaults)
+  # note: DEFINE_auto doesn't support varargs or keywords. Additionally,
+  # all args MUST have a default.
+  spec = inspect.getfullargspec(fn_or_cls)
+  arg_keys = spec.args
+
+  @wraps(fn_or_cls)
+  def _configurable(*args, **kwargs):
+    ff_fn_partial = ff_fn_partial_def.value
+    # the partial will have all defaults defined as kwargs, so we need to
+    # convert any args to kwargs to maintain functionality.
+    num_args = len(args)
+    if num_args > len(arg_keys):
+      raise ValueError(
+          f'Cannot call function {name} with {num_args} arguments, see '
+          f'signature: \n {fn_or_cls.__code__}')
+
+    # split the valid keys
+    arg_arg_keys, kwarg_arg_keys = arg_keys[:num_args], arg_keys[num_args:]
+
+    args_keyed = dict(zip(arg_arg_keys, args))
+    assert set(kwargs) | set(kwarg_arg_keys) == set(kwarg_arg_keys), (
+        'Found overlap between args and kwarg keys.',
+        set(kwargs) | set(kwarg_arg_keys),
+        set(kwarg_arg_keys),
+    )
+    return ff_fn_partial(**{**args_keyed, **kwargs})
+
+  return _configurable
+
+
+def configurable(
+    name_or_fn=None,
+    module: Optional[str] = None,
+):
+  """ Decorator to make a function or class configurable with fancyflags.
+
+  While much more limited in functionality this is partially inspired by
+    https://github.com/google/gin-config/blob/master/gin/config.py
+
+  This decorator is meant to  decorator is meant to be backward compatible with
+  gin, though it leverages fancyflags instead of gin on the backend. This means
+  that you no longer have to use the gin binding syntax with absl flags of
+  `--gin_bind="my_configurable.my_param='the'"`, which tends to have very bad
+  integration with other argument passing libraries (think tuning libs etc.).
+
+  Instead the configurable is much simpler, and equivalent to defining your fn
+  and writing:
+    >>> MY_CONFIGURED_FN = ff.DEFINE_auto('name', my_fn, 'help_msg')
+  This is limited to all the fancyflags types (not gin), but it'd be interesting
+  to merge these two libraries deeper in the future to get more of gin's
+  compatibility with fancyflags ease of cmd use.
+
+  Returns:
+    When used with no parameters (or with a function/class supplied as the first
+    parameter), it returns the decorated function or class. When used with
+    parameters, it returns a function that can be applied to decorate the target
+    function or class.
+
+  """
+
+  # we may be calling with `@configurable` or `@configurable(<name>)`.
+  decoration_target = None
+  if callable(name_or_fn):
+    decoration_target = name_or_fn
+    name = None
+  else:
+    name = name_or_fn
+
+  def perform_decoration(fn_or_cls: Callable[..., _T]) -> Callable[..., _T]:
+    return _make_configurable(fn_or_cls, name, module)
+
+  if decoration_target:
+    return perform_decoration(decoration_target)
+  return perform_decoration

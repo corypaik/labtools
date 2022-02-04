@@ -1,49 +1,23 @@
-
-# Nest Bazel symlinks under _/bazel. Note that this will still create a
-# bazel-out symlink in your project directory
+# Nest Bazel symlinks under _/bazel.
 build --symlink_prefix=_bazel/
 
 # Testing default: show errors
 test --test_output=errors
 
 # Testing debug: stream tests
-test:debug --test_output=streamed --test_strategy=exclusive --test_timeout=9999 --nocache_test_results
+test:debug --test_output=streamed
+test:debug --test_strategy=exclusive
+test:debug --test_timeout=9999
+test:debug --nocache_test_results
 
-# Flag to enable remote config
-common --experimental_repo_remote_exec
-
-# Python rules
+# Don't genereate __init__.py files by default.
 build --incompatible_default_to_explicit_init_py
-run --incompatible_default_to_explicit_init_py
-test --incompatible_default_to_explicit_init_py
 
-# The following flags are set to test use of new features for python toolchains
-# These flags will only work with Bazel 0.25.0 or above.
-build --incompatible_use_python_toolchains
-test --incompatible_use_python_toolchains
+# Enforce stricter environment rules to increase hit rates
+build --incompatible_strict_action_env=true
 
-# lint aspect on build
-# build --aspects //tools/linting:aspect.bzl%lint
-# build --output_groups=+report
+# Enable change detection to avoid poising the cache
+build --experimental_guard_against_concurrent_changes=true
 
-# include py deps by default - they are not included by default for compatibility
-# with downstream projects.
-build --//labtools:include_py_deps=True
-test --//labtools:include_py_deps=True
-
-
-##############
-# buildkite ci
-##############
-# logging config
-build:buildkite --show_progress_rate_limit=5
-build:buildkite --curses=yes --color=yes
-
-# keep going + give more verbose errors
-build:buildkite --keep_going --verbose_failure
-
-################
-# user config
-################
-
+# Attempt to load user config
 try-import %workspace%/user.bazelrc

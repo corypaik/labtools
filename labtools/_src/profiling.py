@@ -1,4 +1,4 @@
-# Copyright 2021 The LabTools Authors
+# Copyright 2021 Cory Paik. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-""" Profiler with opttional synchronizion of JAX ant Torch OPS if installed.
+""" Profiler with optional synchronization of JAX ant Torch if installed.
 
 Example:
 >>> import profiler from labtools
@@ -28,12 +28,13 @@ Example:
 """
 from __future__ import annotations
 
-import time
 from collections import defaultdict
 from contextlib import contextmanager
 from functools import wraps
+import time
 from typing import Callable, Optional, Union
 
+from absl import app
 from absl import flags
 from absl import logging
 
@@ -42,10 +43,10 @@ from labtools._src.util import maybe_import
 Number = Union[int, float]
 
 FLAGS = flags.FLAGS
-flags.DEFINE_string('profiling', 'disabled', 'Profiling mode.')
-flags.register_validator(
-  'profiling', lambda value: value in ('disabled', 'enabled', 'strict'),
-  flag_values=FLAGS)
+flags.DEFINE_enum('labtools_profiling',
+                  'disabled', ['disabled', 'enabled', 'strict'],
+                  'Profiling mode.',
+                  module_name='labtools')
 
 
 class AverageMeter(object):
@@ -69,31 +70,34 @@ class AverageMeter(object):
     self.avg = self.sum / self.count
 
 
-def synchroized(fn: Callable, sync_in: bool = True,
-                sync_out: bool = False) -> Callable:
-  def _jax_blocker():
-    return jax.jit(lambda x: jax.device_put(x))(0.0).block_until_ready()  # pytype: disable=attribute-error
+def synchronize_fn(fn: Callable,
+                   sync_in: bool = True,
+                   sync_out: bool = False) -> Callable:
 
-  _sync_fns = []
+  def _jax_blocker():
+    if jax is not None:
+      return jax.jit(jax.device_put)(0.0).block_until_ready()
+
+  sync_fns = []
   torch = maybe_import('torch')
   jax = maybe_import('jax')
   if torch is not None:
-    _sync_fns.append(torch.cuda.synchronize)
+    sync_fns.append(torch.cuda.synchronize)
   if jax is not None:
-    _sync_fns.append(_jax_blocker)
+    sync_fns.append(_jax_blocker)
 
-  _sync_fn = lambda: [f() for f in _sync_fns]
-  _sync_fn_in = _sync_fn if sync_in else lambda: []
-  _sync_fn_out = _sync_fn if sync_out else lambda: []
+  sync_fn = lambda: [f() for f in sync_fns]
+  sync_fn_in = sync_fn if sync_in else lambda: []
+  sync_fn_out = sync_fn if sync_out else lambda: []
 
   @wraps(fn)
-  def _synchroized(*args, **kwargs):
-    _sync_fn_in()
+  def _synchronize_fn(*args, **kwargs):
+    sync_fn_in()
     out = fn(*args, **kwargs)
-    _sync_fn_out()
+    sync_fn_out()
     return out
 
-  return _synchroized
+  return _synchronize_fn
 
 
 class Singleton(type):
@@ -106,6 +110,7 @@ class Singleton(type):
 
 
 class Profiler(metaclass=Singleton):
+  """ Provides a profiler with optional synchronzition """
   _mode: str = None
   start: Callable[[str], None]
   end: Callable[[str], None]
@@ -116,28 +121,30 @@ class Profiler(metaclass=Singleton):
     self._enabled = False
     self._default_name = name
 
-    # initilize
+    # initialize
     self.reset_timers()
 
     # init once app initialized
     if name == 'root' and mode is None:
-      from absl import app
-      from absl import flags as absl_flags
-      app.call_after_init(lambda: self.complete_absl_config(absl_flags))
+      app.call_after_init(lambda: self.complete_absl_config(flags))
     else:
       self.toggle(mode)
 
   def reset_timers(self):
-    self._prevtimes = defaultdict(lambda: time.time())
-    self._starttimes = defaultdict(lambda: time.time())
-    self._counters = defaultdict(lambda: AverageMeter())
+    self._prevtimes = defaultdict(time.time)
+    self._starttimes = defaultdict(time.time)
+    self._counters = defaultdict(AverageMeter)
 
   def complete_absl_config(self, absl_flags):
-    self.toggle(absl_flags.FLAGS.profiling)
+    self.toggle(absl_flags.FLAGS.labtools_profiling)
 
   @property
   def prev(self):
     return self._prev
+
+  @property
+  def mode(self):
+    return self._mode
 
   def toggle(self, mode: str):
     # noop
@@ -147,8 +154,8 @@ class Profiler(metaclass=Singleton):
     self._enabled = True
     if mode == 'strict':
       logging.info('Profiler set to strict mode, will synchronize Torch/Jax.')
-      self.start = synchroized(self.__start)
-      self.end = synchroized(self.__end)
+      self.start = synchronize_fn(self.__start)
+      self.end = synchronize_fn(self.__end)
     elif mode == 'enabled':
       logging.warning('Profiler not in strict mode, timings may be inaccurate.')
       self.start = self.__start
@@ -176,12 +183,12 @@ class Profiler(metaclass=Singleton):
     for name in names:
       elapsed = curr - self._starttimes[name]
       name = name or self._default_name
-      # this mightv'e been the first use, if so do count it
+      # this might've been the first use, if so do count it
       if elapsed > 0:
         self._counters[name].update(elapsed)
       else:
         logging.warning(
-          'Attemting to call profiler.end() on unitiialized timer.')
+            'Attemting to call profiler.end() on uninitialized timer.')
 
   def __str__(self):
     out = f'Profiler results ({self._default_name})\n'
@@ -197,16 +204,17 @@ class Profiler(metaclass=Singleton):
     if self._enabled or force:
       logging.info(str(self))
 
-  def __passthrough(self, *args, **kwargs):
+  def __passthrough(self, *_: str):
     return
 
 
-# creat default profiler (singleton)
+# Create default profiler (singleton)
 profiler = Profiler()
 
 
 @contextmanager
-def profile_kv(scopename, log=True):
+def profile_kv(scopename):
+  """ Provides a context manager for profiling a scope. """
   profiler.start(scopename)
   try:
     yield
@@ -215,11 +223,17 @@ def profile_kv(scopename, log=True):
 
 
 def profile(fn, n=None):
+  """ Provides a decorator to profile a funcion
+
+  Args:
+    fn: function to decorate
+    n: Name of the function. If not provided will use the name of the function.
+
+  Example:
+  >>> @profile
+  ... def bar():
+  ...   return 'hi'
   """
-    Usage:
-    @profile("my_func")
-    def my_func(): code
-    """
   scopename = n or fn.__name__
 
   @wraps(fn)

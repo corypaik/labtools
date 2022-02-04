@@ -1,64 +1,21 @@
-# Copyright 2021 The LabTools Authors
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
-workspace(
-    name = "labtools",
-    managed_directories = {"@labtools_npm": ["node_modules"]},
+workspace(name = "labtools")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "rules_python",
+    sha256 = "a30abdfc7126d497a7698c29c46ea9901c6392d6ed315171a6df5ce433aa4502",
+    strip_prefix = "rules_python-0.6.0",
+    url = "https://github.com/bazelbuild/rules_python/archive/0.6.0.tar.gz",
 )
 
-load("//repositories:repositories.bzl", "labtools_repos")
+load("@rules_python//python:pip.bzl", "pip_parse")
 
-labtools_repos()
-
-load("//repositories:deps.bzl", "labtools_deps")
-
-labtools_deps()
-
-##############
-# Dependencies
-##############
-
-load("@com_github_ali5h_rules_pip//:defs.bzl", "pip_import")
-
-pip_import(
-    name = "pip",
-    python_interpreter = "python3",
-    requirements = "//tools:test-requirements.txt",
+pip_parse(
+    name = "pypi",
+    requirements_lock = "//:requirements.txt",
 )
 
-load("@pip//:requirements.bzl", "pip_install")
+load("@pypi//:requirements.bzl", "install_deps")
 
-pip_install(["--no-deps"])
-
-##############
-# Kubernetes
-##############
-load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
-
-k8s_defaults(
-    name = "k8s_deploy",
-    image_chroot = "gcr.io/kln-lab/projects/labtools",
-    kind = "deployment",
-)
-
-load("//config/infra/buildkite:deps.bzl", "buildkite_deps")
-
-buildkite_deps()
-
-##############
-# Test Deps
-##############
-load("//labtools:deps.bzl", _internal_labtools_deps = "labtools_deps")
-
-_internal_labtools_deps()
+install_deps()

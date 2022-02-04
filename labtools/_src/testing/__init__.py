@@ -1,4 +1,4 @@
-# Copyright 2021 The LabTools Authors
+# Copyright 2021 Cory Paik. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,10 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
-import sys
-
-from pytype.tools.analyze_project.main import main
-
-if __name__ == '__main__':
-  sys.exit(main())
