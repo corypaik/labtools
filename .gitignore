@@ -77,6 +77,5 @@ user.bazelrc
 /_results/
 /logs/
 
-# ---------------------
-# Project Specific
-# ---------------------
+# Webots temp files
+*.wbproj

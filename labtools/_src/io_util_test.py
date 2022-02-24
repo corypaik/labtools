@@ -59,7 +59,7 @@ class DownloadFilesTest(parameterized.TestCase):
 
   @parameterized.parameters(
       (
-          'bazel::rf://labtools/labtools/__init__.py',
+          'bazel::rf://com_github_corypaik_research/labtools/__init__.py',
           os.path.join(os.path.dirname(__file__), '../__init__.py'),
       ),)
   def test_resolve_path_runfiles(self, path, expected):
