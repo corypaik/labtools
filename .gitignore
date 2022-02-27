@@ -79,3 +79,7 @@ user.bazelrc
 
 # Webots temp files
 *.wbproj
+
+# dotfiles ssh configs
+ssh/.env
+ssh/config
