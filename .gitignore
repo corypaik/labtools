@@ -81,5 +81,5 @@ user.bazelrc
 *.wbproj
 
 # dotfiles ssh configs
-ssh/.env
-ssh/config
+*/ssh/.env
+*/ssh/config
