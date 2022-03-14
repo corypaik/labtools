@@ -22,7 +22,7 @@ py_library(
     imports = ["../.."],
     deps = [
         ":util",
-        "@pypi_absl_py//:pkg",
+        "@pip//absl_py",
     ],
 )
 
@@ -31,7 +31,7 @@ py_library(
     srcs = ["huggingface.py"],
     imports = ["../.."],
     deps = [
-        "@pypi_absl_py//:pkg",
+        "@pip//absl_py",
     ],
 )
 
@@ -41,9 +41,9 @@ py_library(
     imports = ["../.."],
     deps = [
         ":util",
-        "@pypi_absl_py//:pkg",
-        "@pypi_cytoolz//:pkg",
-        "@pypi_requests//:pkg",
+        "@pip//absl_py",
+        "@pip//cytoolz",
+        "@pip//requests",
         "@rules_python//python/runfiles",
     ],
 )
@@ -55,7 +55,7 @@ py_library(
     imports = ["../.."],
     deps = [
         ":util",
-        "@pypi_absl_py//:pkg",
+        "@pip//absl_py",
     ],
 )
 
@@ -64,7 +64,7 @@ py_test(
     srcs = ["profiling_test.py"],
     deps = [
         ":profiling",
-        "@pypi_absl_py//:pkg",
+        "@pip//absl_py",
     ],
 )
 
@@ -73,8 +73,8 @@ py_library(
     srcs = ["util.py"],
     imports = ["../.."],
     deps = [
-        "@pypi_absl_py//:pkg",
-        "@pypi_cytoolz//:pkg",
+        "@pip//absl_py",
+        "@pip//cytoolz",
     ],
 )
 
@@ -83,10 +83,10 @@ py_test(
     srcs = ["config_test.py"],
     deps = [
         ":config",
-        "@pypi_absl_py//:pkg",
-        "@pypi_cytoolz//:pkg",
-        "@pypi_fancyflags//:pkg",
-        "@pypi_ml_collections//:pkg",
+        "@pip//absl_py",
+        "@pip//cytoolz",
+        "@pip//fancyflags",
+        "@pip//ml_collections",
     ],
 )
 
@@ -95,8 +95,8 @@ py_test(
     srcs = ["io_util_test.py"],
     deps = [
         ":io_util",
-        "@pypi_absl_py//:pkg",
-        "@pypi_fsspec//:pkg",
+        "@pip//absl_py",
+        "@pip//fsspec",
     ],
 )
 
@@ -106,9 +106,9 @@ py_library(
     imports = ["../.."],
     deps = [
         ":util",
-        "@pypi_absl_py//:pkg",
-        "@pypi_fsspec//:pkg",
-        "@pypi_gin_config//:pkg",
+        "@pip//absl_py",
+        "@pip//fsspec",
+        "@pip//gin_config",
     ],
 )
 
@@ -118,6 +118,6 @@ py_test(
     main = "gin_utils_test.py",
     deps = [
         ":gin_utils",
-        "@pypi_absl_py//:pkg",
+        "@pip//absl_py",
     ],
 )

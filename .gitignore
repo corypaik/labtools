@@ -83,3 +83,6 @@ user.bazelrc
 # dotfiles ssh configs
 */ssh/.env
 */ssh/config
+
+# Allow @pip sdk.env symlink
+/.vscode/pip_sdk.env

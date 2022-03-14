@@ -23,6 +23,6 @@ py_library(
     imports = ["../../.."],
     deps = [
         "//labtools/_src:util",
-        "@pypi_absl_py//:pkg",
+        "@pip//absl_py",
     ],
 )
