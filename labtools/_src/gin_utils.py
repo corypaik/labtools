@@ -25,7 +25,7 @@ For GCS (supported by tensorflow) you'll need to also install gsspec.
 See the github for more info: https://github.com/fsspec
 """
 import os
-from typing import Sequence
+from typing import Optional, Sequence
 
 from absl import app
 from absl import flags
@@ -36,20 +36,40 @@ import gin
 
 from labtools._src.util import maybe_import
 
+flags.disclaim_key_flags()
 
-def register_gin_flags(module_name: str = 'labtools.config'):
+
+def register_gin_flags(module_name: Optional[str] = 'labtools.config',
+                       use_caller_module_name: bool = False,
+                       **kwargs):
+  """ Register flags for parsing the gin configuration
+
+  Args:
+    module_name: By default the module name for these flags will be set to
+      `labtools.config`, and will only show up in the help output if you
+      use the flag --helpfull. You can manually set this to a specific value.
+    use_caller_module_for_gin_flags: Predicate indicating that we should ignore
+      `module_name` and set the flag's `module_name` to None. Set this to `True`
+      if you would like the flags to be declared as if you defined them from
+      the calling module (e.g., so they also show up in --help).
+  """
+  if use_caller_module_name:
+    module_name = None
+
   flags.DEFINE_multi_string(
       'gin_file',
       default=None,
       help='Path to gin configuration file. Multiple paths may be passed and '
       'will be imported in the given order, with later configurations  '
       'overriding earlier ones.',
-      module_name=module_name)
+      module_name=module_name,
+      **kwargs)
 
   flags.DEFINE_multi_string('gin_bindings',
                             default=[],
                             help='Individual gin bindings.',
-                            module_name=module_name)
+                            module_name=module_name,
+                            **kwargs)
 
   flags.DEFINE_list(
       'gin_search_paths',
@@ -58,7 +78,8 @@ def register_gin_flags(module_name: str = 'labtools.config'):
       'to suffixes given via `--gin_file`. If a file appears in. Only the '
       'first prefix that produces a valid path for each suffix will be '
       'used.',
-      module_name=module_name)
+      module_name=module_name,
+      **kwargs)
 
 
 def parse_gin_flags(gin_search_paths: Sequence[str],
@@ -122,8 +143,8 @@ def summarize_gin_config(model_dir: str, summary_writer, step: int):
     # Attempt to get the correct fsspec protocol.
     try:
       fs = get_filesystem_class(model_dir)
-    except ImportError:
-      logging.exception(
+    except:  # pylint: disable=bare-except
+      logging.warning(
           'Failed to retrive filespec for specified protocol, '
           'saving locally instead (model_dir=%s)', model_dir)
       fs = filesystem('file')

@@ -12,18 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""Tests for gin_utils.
+"""Tests for gin_utils. """
 
-This module was adapted from https://github.com/google-research/t5x in Oct. 2021
-to be more portable. See `labtools._src.gin_utils` for more details.
-"""
-
+from absl import flags
 from absl.testing import absltest
+from absl.testing import parameterized
 
+from labtools._src.gin_utils import register_gin_flags
 from labtools._src.gin_utils import rewrite_gin_args
 
 
-class GinUtilsTest(absltest.TestCase):
+class T5xRewriteGinArgsTest(absltest.TestCase):
+  """Original t5x testcases for rewrite_gin_args
+
+    See `labtools._src.gin_utils` for more details.
+
+    References:
+      [The T5X Authors, 2021](https://github.com/google-research/t5x)
+  """
 
   def test_rewrite_gin_args(self):
     test_args = [
@@ -57,6 +63,23 @@ class GinUtilsTest(absltest.TestCase):
         "Gin bindings must be of the form '--gin.<param>=<value>', got: "
         '--gin.test'):
       rewrite_gin_args(test_args)
+
+
+class RegisterGinFlagsTest(parameterized.TestCase):
+
+  @parameterized.named_parameters(
+      ('defaults', {}, 'labtools.config'),
+      ('override_module', {'module_name': 'mymodule'}, 'mymodule'),\
+      ('use_caller_module', {'use_caller_module_name': True}, __file__)
+  )
+  def test_register_gin_flags(self, kwargs, expected_module):
+    flag_values = flags.FlagValues()
+
+    register_gin_flags(flag_values=flag_values, **kwargs)
+
+    for flag_name in ('gin_file', 'gin_bindings', 'gin_search_paths'):
+      self.assertEqual(flag_values.find_module_defining_flag(flag_name),
+                       expected_module)
 
 
 if __name__ == '__main__':
