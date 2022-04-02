@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""Configuration utilities using gin-config"""
 
 from labtools._src.gin_utils import bool_fn
+from labtools._src.gin_utils import configure_and_run
 from labtools._src.gin_utils import parse_gin_flags
 from labtools._src.gin_utils import register_gin_flags
 from labtools._src.gin_utils import rewrite_gin_args
@@ -23,6 +25,7 @@ from labtools._src.gin_utils import summarize_gin_config
 
 __all__ = (
     'register_gin_flags',
+    'configure_and_run',
     'parse_gin_flags',
     'rewrite_gin_args',
     'summarize_gin_config',

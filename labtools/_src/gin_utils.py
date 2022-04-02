@@ -24,8 +24,9 @@ installed, as fsspec only supports certain backends with additional packages.
 For GCS (supported by tensorflow) you'll need to also install gsspec.
 See the github for more info: https://github.com/fsspec
 """
+import inspect
 import os
-from typing import Optional, Sequence
+from typing import Any, Callable, List, Optional, Sequence, TypeVar
 
 from absl import app
 from absl import flags
@@ -36,6 +37,7 @@ import gin
 
 from labtools._src.util import maybe_import
 
+T = TypeVar('T')
 flags.disclaim_key_flags()
 
 
@@ -165,6 +167,68 @@ def run(main):
   app.run(
       main,
       flags_parser=lambda a: app.parse_flags_with_usage(rewrite_gin_args(a)))
+
+
+def configure_and_run(run_fn: Callable[[Any], T],
+                      default_gin_search_paths: Optional[List[str]] = None,
+                      **kwargs) -> T:
+  """ Wrapper to setup gin configuration and run run_fn
+
+  Example:
+    Suppose we want to confiigure some training function `train`, we can setup
+    our main script to look like this:
+
+    >>> def train(name, learning_rate=1e-3):
+    ...    ...
+    ... if __name__ == '__main__':
+    ...    labtools.config.configure_and_run(train)
+
+    This will add the flags --gin_file, --gin_bindings, and --gin_search_paths
+    which can be used to configure `train`.
+
+  Args:
+    run_fn: The function to configure and run. It can be parameterized using
+      it's original name.
+    default_gin_search_paths: Defaults path relative to which we should look
+      for configuration files. If None, then will set the default search paths
+      relative to `dirname(run_fn.__file__)`
+    kwargs: Additional keyword arguments to forward to
+      `labtools.config.register_gin_flags`.
+
+  Returns:
+    Returns the output of run_fn. Typically run_fn is the main function but this
+    can be useful for verifying results during testing.
+
+  """
+  register_gin_flags(**kwargs)
+  del kwargs
+
+  # Automatically search for gin files relative to the project
+  if default_gin_search_paths is None:
+    default_gin_search_paths = [os.path.dirname(inspect.getabsfile(run_fn))]
+
+  def main(argv: Sequence[str]):
+    """Wrapper for pdb post mortems."""
+    return _main(argv)
+
+  def _main(argv: Sequence[str]):
+    """True main function."""
+    if len(argv) > 1:
+      raise app.UsageError('Too many command-line arguments.')
+
+    # Create gin-configurable version of `run_fn`.
+    run_fn_using_gin = gin.configurable(run_fn)
+
+    parse_gin_flags(
+        # User-provided gin paths take precedence if relative paths conflict.
+        flags.FLAGS.gin_search_paths + default_gin_search_paths,
+        flags.FLAGS.gin_file,
+        flags.FLAGS.gin_bindings)
+
+    # Run under gin
+    return run_fn_using_gin()
+
+  return run(main)
 
 
 # ====================== Configurable Utility Functions ======================
