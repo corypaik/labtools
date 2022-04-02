@@ -29,6 +29,9 @@ py_library(
     srcs_version = "PY3",
     visibility = ["//visibility:public"],
     deps = [
+        ":config",
+        ":experimental",
+        ":testing",
         "//labtools/_src:config",
         "//labtools/_src:huggingface",
         "//labtools/_src:io_util",
@@ -40,9 +43,8 @@ py_library(
 py_library(
     name = "experimental",
     srcs = ["experimental.py"],
-    visibility = ["//visibility:public"],
+    imports = [".."],
     deps = [
-        ":labtools",
         "//labtools/_src:config",
         "//labtools/_src:io_util",
     ],
@@ -51,9 +53,8 @@ py_library(
 py_library(
     name = "testing",
     srcs = ["testing.py"],
-    visibility = ["//visibility:public"],
+    imports = [".."],
     deps = [
-        ":labtools",
         "//labtools/_src/testing:_testcase",
     ],
 )
@@ -62,9 +63,7 @@ py_library(
     name = "config",
     srcs = ["config.py"],
     imports = [".."],
-    visibility = ["//visibility:public"],
     deps = [
-        ":labtools",
         "//labtools/_src:gin_utils",
     ],
 )

@@ -61,6 +61,10 @@ from labtools._src.profiling import profile_kv
 from labtools._src.huggingface import hf_get_fwd_columns
 from labtools._src.huggingface import hf_one_to_many
 
+import labtools.config
+import labtools.experimental
+import labtools.testing
+
 __all__ = (
     'is_installed',
     'maybe_import',
@@ -95,4 +99,7 @@ __all__ = (
     'hf_get_fwd_columns',
     'hf_one_to_many',
     'param_product',
+    'config',
+    'experimental',
+    'testing',
 )
