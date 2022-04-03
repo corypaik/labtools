@@ -5,6 +5,7 @@
 #    bazel run //distro/labtools:requirements.update
 #
 --find-links https://download.pytorch.org/whl/torch_stable.html
+--trusted-host download.pytorch.org
 
 absl-py==0.15.0 \
     --hash=sha256:72d782fbeafba66ba3e525d46bccac949b9a174dbf66233e50ece09ee688dc81 \
